@@ -16,22 +16,23 @@ Hooks.once("init", function () {
   });
 });
 
-Hooks.once("ready", function(){
-  const noteMap = canvas.notes.documentCollection;
-  const showAll = game.settings.get(
+
+
+Hooks.on("drawNote", (note)=>{
+    const showAll = game.settings.get(
       MODULE_ID,
       "allPinVisible",
     );
-    if(showAll){
-      noteMap.forEach(note =>{
-        const apoFlags = note.flags?.[MODULE_ID]
+        if(showAll){
+    
+        const apoFlags = note?.document?.flags?.[MODULE_ID]
         const hideLabel = apoFlags?.hideLabel
         if(!hideLabel){
-          note._object.hover = true
+          note.hover = true
         }
         
 
-      })
+    
     }
 })
 /* ----------------------------------------- */
