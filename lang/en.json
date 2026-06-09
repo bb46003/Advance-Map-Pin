@@ -1,0 +1,8 @@
+{
+  "apo": {
+    "header": "Advance Map Pin Options",
+    "customText": "Inster Your custom text to Map Note while hover",
+    "useImg": "Add Image to Map Note while hover",
+    "hideLabel": "Hide label and Custom Overlay when hover"
+  }
+}

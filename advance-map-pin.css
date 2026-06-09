@@ -1,0 +1,13 @@
+.apo {
+  prose-mirror {
+    border: 1px solid;
+    border-radius: 10px;
+  }
+}
+.apo-hover {
+  background: white;
+  color: black;
+  img{
+    max-height: 550px;
+  }
+}

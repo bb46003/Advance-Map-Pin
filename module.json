@@ -1,0 +1,30 @@
+{
+  "id": "advance-map-pin",
+  "title": "Advance Map Pin",
+  "version": "1.0.0",
+  "compatibility": {
+    "minimum": "14",
+    "verified": "14"
+  },
+  "authors": [
+    {
+      "name": "BartekB",
+      "flags": {}
+    }
+  ],
+  "esmodules": ["src/main.mjs"],
+  "styles": ["advance-map-pin.css"],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "pl",
+      "name": "Polski",
+      "path": "lang/pl.json"
+    }
+  ],
+  "description": ""
+}

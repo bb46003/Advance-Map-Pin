@@ -1,0 +1,34 @@
+<fieldset class="apo">
+  <legend>{{localize "apo.header"}}</legend>
+  <div class="form-group">
+    <div class="enrich">
+      <label>{{localize text.field.label}}</label>
+      {{formInput
+        text.field
+        value=text.value
+        enriched=text.enriched
+        toggled="true"
+      }}
+    </div>
+  </div>
+   <div class="form-group">
+    <label>{{localize "apo.useImg"}}</label>
+
+    <div class="form-fields flexrow" >
+<input type="text" name="flags.advance-map-pin.img" value="{{img}}" />
+
+<button
+  type="button"
+  class="file-picker"
+  data-type="image"
+  data-target="flags.advance-map-pin.img"
+><i class='fas fa-folder-open'></i>
+    </div>
+</div>
+ <div class="form-group">
+    <label>{{localize "apo.hideLabel"}}</label>
+           
+        <input type="checkbox" name="hideLabel" {{#if hideLabel}}checked{{/if}}>
+
+</div>
+</fieldset>
