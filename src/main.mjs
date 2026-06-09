@@ -2,16 +2,55 @@ const { HTMLField } = foundry.data.fields;
 const MODULE_ID = "advance-map-pin";
 
 let hoverElement = null;
+Hooks.once("init", function () {
+  game.settings.register(MODULE_ID, "allPinVisible", {
+    name: game.i18n.localize("apo.settings.allPinVisible"),
+    hint: game.i18n.localize("apo.settings.allPinVisibleHint"),
+    scope: "world",
+    type: Boolean,
+    default: false,
+    config: true,
+    onChange: foundry.utils.debounce(() => {
+      window.location.reload();
+    }, 100),
+  });
+});
 
+Hooks.once("ready", function(){
+  const noteMap = canvas.notes.documentCollection;
+  const showAll = game.settings.get(
+      MODULE_ID,
+      "allPinVisible",
+    );
+    if(showAll){
+      noteMap.forEach(note =>{
+        const apoFlags = note.flags?.[MODULE_ID]
+        const hideLabel = apoFlags?.hideLabel
+        if(!hideLabel){
+          note._object.hover = true
+        }
+        
+
+      })
+    }
+})
 /* ----------------------------------------- */
 /* HOVER DISPLAY */
 /* ----------------------------------------- */
 Hooks.on("hoverNote", async (note, hoverIn) => {
   // remove if exists
+    const showAll = game.settings.get(
+      MODULE_ID,
+      "allPinVisible",
+    );
   if (!hoverIn) {
+     if(showAll){
+        note.hover = true
+      }
     if (hoverElement) {
       hoverElement.remove();
       hoverElement = null;
+     
     }
     return;
   }
