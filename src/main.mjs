@@ -14,62 +14,49 @@ Hooks.once("init", function () {
       window.location.reload();
     }, 100),
   });
+  registerHandlebarsHelpers();
 });
 
+Hooks.on("drawNote", (note) => {
+  const showAll = game.settings.get(MODULE_ID, "allPinVisible");
+  const apoFlags = note?.document?.flags?.[MODULE_ID];
 
+  const hideLabel = apoFlags?.hideLabel;
+  const alwaysShow = apoFlags?.alwaysShow;
 
-Hooks.on("drawNote", (note)=>{
-    const showAll = game.settings.get(
-      MODULE_ID,
-      "allPinVisible",
-    );
-        if(showAll){
-    
-        const apoFlags = note?.document?.flags?.[MODULE_ID]
-        const hideLabel = apoFlags?.hideLabel
-        if(!hideLabel){
-          note.hover = true
-        }
-        
-
-    
+  if (showAll || alwaysShow) {
+    if (!hideLabel) {
+      note.hover = true;
     }
-})
-/* ----------------------------------------- */
-/* HOVER DISPLAY */
-/* ----------------------------------------- */
+  }
+});
+
 Hooks.on("hoverNote", async (note, hoverIn) => {
-  // remove if exists
-    const showAll = game.settings.get(
-      MODULE_ID,
-      "allPinVisible",
-    );
+
+  const showAll = game.settings.get(MODULE_ID, "allPinVisible");
+  const apoFlags = note.document.flags?.[MODULE_ID];
   if (!hoverIn) {
-     if(showAll){
-        note.hover = true
-      }
+    if (showAll || apoFlags?.alwaysShow) {
+      note.hover = true;
+    }
     if (hoverElement) {
       hoverElement.remove();
       hoverElement = null;
-     
     }
     return;
   }
 
-  const apoFlags = note.document.flags?.[MODULE_ID];
-
   if (!apoFlags) return;
-  if(apoFlags.hideLabel){
+  if (apoFlags.hideLabel) {
     event.preventDefault();
     note.hover = false;
-    return
+    return;
   }
   const template = "modules/advance-map-pin/templates/hover-element.hbs";
 
   const templateData = {
     text: apoFlags.text ?? "",
     img: apoFlags.img ?? "",
-
   };
 
   const content = await foundry.applications.handlebars.renderTemplate(
@@ -77,15 +64,13 @@ Hooks.on("hoverNote", async (note, hoverIn) => {
     templateData,
   );
 
-  // remove previous (safety)
   if (hoverElement) hoverElement.remove();
 
-  // create DOM element
   hoverElement = document.createElement("div");
   hoverElement.classList.add("apo-hover");
+
   hoverElement.innerHTML = content;
 
-  // position (simple version – you may improve later with transform)
   const screenX = note.x + 150;
   const screenY = note.y - 150;
 
@@ -97,18 +82,14 @@ Hooks.on("hoverNote", async (note, hoverIn) => {
   document.getElementById("hud").appendChild(hoverElement);
 });
 
-/* ----------------------------------------- */
-/* NOTE CONFIG */
-/* ----------------------------------------- */
 Hooks.on("renderNoteConfig", async (app, html, data) => {
   const template = "modules/advance-map-pin/templates/advance-pin-option.hbs";
   const note = app.document;
 
   const apoFlags = note.flags?.[MODULE_ID] ?? {};
-
   const rawText = apoFlags.text ?? "";
-  const enrichedText = await enrich(rawText);
 
+  const enrichedText = await enrich(rawText);
   const templateData = {
     text: {
       value: rawText,
@@ -119,8 +100,9 @@ Hooks.on("renderNoteConfig", async (app, html, data) => {
         label: "apo.customText",
       }),
     },
-    img: apoFlags.img ?? "", // ✅ added
-        hideLabel : apoFlags.hideLabel ?? false
+    img: apoFlags.img ?? "",
+    hideLabel: apoFlags.hideLabel ?? false,
+    alwaysShow: apoFlags.alwaysShow ?? false,
   };
 
   const content = await foundry.applications.handlebars.renderTemplate(
@@ -129,19 +111,17 @@ Hooks.on("renderNoteConfig", async (app, html, data) => {
   );
 
   const fieldsets = html.querySelectorAll("fieldset");
+
   if (!fieldsets.length) return;
 
   const lastFieldset = fieldsets[fieldsets.length - 1];
+
   lastFieldset.insertAdjacentHTML("afterend", content);
 
-  /* ----------------------------------------- */
-  /* FILE PICKER HANDLING */
-  /* ----------------------------------------- */
   html.querySelectorAll(".file-picker").forEach((button) => {
     button.addEventListener("click", () => {
       const target = button.dataset.target;
       const input = html.querySelector(`[name="${target}"]`);
-
       new FilePicker({
         type: button.dataset.type,
         current: input?.value || "",
@@ -152,43 +132,73 @@ Hooks.on("renderNoteConfig", async (app, html, data) => {
     });
   });
 
-  /* ----------------------------------------- */
-  /* SAVE HANDLER */
-  /* ----------------------------------------- */
   const saveButton = html.querySelector(".form-footer button[type='submit']");
 
   saveButton.addEventListener("click", async () => {
+
     const apo = html.querySelector(".apo");
-    const textField = apo.querySelector(
-      ".editor-content"
-    );
+    const textField = apo.querySelector(".editor-content");
 
     const textValue = textField?.innerHTML ?? "";
-    const hideLabel = apo.querySelector("input[name=hideLabel]")
-    // IMAGE
-    const imgField = apo.querySelector(
-      "input[name='flags.advance-map-pin.img']",
-    );
+
+    const hideLabel = apo.querySelector("input[name=hideLabel]");
+    const imgField = apo.querySelector("input[name='flags.advance-map-pin.img']");
+    const alwaysShow = apo.querySelector("input[name=alwaysShow]");
 
     const imgValue = imgField?.value ?? "";
+    const alwaysHide = hideLabel?.checked ?? false;
+    const alwaysShowValue = alwaysShow?.checked ?? false;
 
-    // SAVE FLAGS
     await note.setFlag(MODULE_ID, "text", textValue);
     await note.setFlag(MODULE_ID, "img", imgValue);
-    await note.setFlag(MODULE_ID, "hideLabel", hideLabel.checked);
-    
+    await note.setFlag(MODULE_ID, "hideLabel", alwaysHide);
+    await note.setFlag(MODULE_ID, "alwaysShow", alwaysShowValue);
+
+    note._object.hover = alwaysShowValue;
   });
+
   html.addEventListener("save", (event) => {
     note.setFlag(MODULE_ID, "text", event.target.value);
   });
+
+  const apo = html.querySelector(".apo");
+  const hideLabel = apo.querySelector("input[name=hideLabel]");
+  const alwaysShow = apo.querySelector("input[name=alwaysShow]");
+
+  function toggleGroup(input, show) {
+
+    const group = input.closest(".form-group");
+    if (!group) return;
+    group.style.display = show ? "" : "none";
+
+  }
+  hideLabel.addEventListener("change", () => {
+
+    if (hideLabel.checked) {
+      alwaysShow.checked = false;
+      toggleGroup(alwaysShow, false);
+      toggleGroup(hideLabel, true);
+    } else {
+      toggleGroup(alwaysShow, true);
+    }
+
+  });
+
+  alwaysShow.addEventListener("change", () => {
+
+    if (alwaysShow.checked) {
+      hideLabel.checked = false;
+      toggleGroup(hideLabel, false); 
+      toggleGroup(alwaysShow, true); 
+    } else {
+      toggleGroup(hideLabel, true); 
+    }
+    
+  });
 });
 
-/* ----------------------------------------- */
-/* ENRICH FUNCTION */
-/* ----------------------------------------- */
 async function enrich(html) {
   if (!html) return html;
-
   return await foundry.applications.ux.TextEditor.implementation.enrichHTML(
     html,
     {
@@ -196,4 +206,22 @@ async function enrich(html) {
       async: true,
     },
   );
+}
+
+function registerHandlebarsHelpers() {
+  Handlebars.registerHelper({
+    eq: (v1, v2) => v1 === v2,
+    ne: (v1, v2) => v1 !== v2,
+    lt: (v1, v2) => v1 < v2,
+    gt: (v1, v2) => v1 > v2,
+    lte: (v1, v2) => v1 <= v2,
+    gte: (v1, v2) => v1 >= v2,
+    not: (v1) => !v1,
+    and() {
+      return Array.prototype.every.call(arguments, Boolean);
+    },
+    or() {
+      return Array.prototype.slice.call(arguments, 0, -1).some(Boolean);
+    },
+  });
 }
