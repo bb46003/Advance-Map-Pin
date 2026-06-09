@@ -1,7 +1,7 @@
 {
   "id": "advance-map-pin",
   "title": "Advance Map Pin",
-  "version": "1.0.0",
+  "version": "vDev",
   "compatibility": {
     "minimum": "14",
     "verified": "14"
@@ -9,6 +9,7 @@
   "authors": [
     {
       "name": "BartekB",
+       "discord": "bartek6199",
       "flags": {}
     }
   ],
@@ -26,5 +27,8 @@
       "path": "lang/pl.json"
     }
   ],
-  "description": ""
+  "description": "",
+    "url": "Filled in by the release workflow",
+  "manifest": "Filled in by the release workflow",
+  "download": "Filled in by the release workflow"
 }
