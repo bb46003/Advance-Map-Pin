@@ -15,6 +15,18 @@ Hooks.once("init", function () {
     }, 100),
   });
   registerHandlebarsHelpers();
+  const original = Note.prototype._onHoverIn;
+
+Note.prototype._onHoverIn = function(event, options) {
+  const apoFlags = this.document?.flags?.[MODULE_ID];
+
+  // allow re-hover only for your notes
+  if (this.hover && !apoFlags?.alwaysShow) {return;}else{
+    this.hover=false
+  }
+  
+  return original.call(this, event, options);
+};
 });
 
 Hooks.on("drawNote", (note) => {
