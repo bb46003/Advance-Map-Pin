@@ -8,6 +8,8 @@
       "allPinVisible": "Map Note Title always visible",
       "allPinVisibleHint": "Name of each Map Note will be always visible with out need for hovering."
     },
-    "alwaysVisible": "This Note Name will be always visible"
+    "alwaysVisible": "This Note Name will be always visible",
+    "hasBackground": "Remove Pin dorger and backgroind",
+    "showtouser": "Select users which can see this Pin"
   }
 }

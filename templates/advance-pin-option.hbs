@@ -28,4 +28,21 @@
     <label>{{localize "apo.alwaysVisible"}}</label>  
     <input type="checkbox" name="alwaysShow" {{#if alwaysShow}}checked{{/if}}>
   </div>
+    <div class="form-group" >
+    <label>{{localize "apo.hasBackground"}}</label>  
+    <input type="checkbox" name="hasBackground" {{#if hasBackground}}checked{{/if}}>
+  </div>
+  {{#if doNotHaveJournal}}
+  <div class="form-group" >
+    <label>{{localize "apo.showtouser"}}</label>
+    <div class="flexcol">
+    {{#each users as |user index|}}
+      <div class="flexrow users">
+        <label class="user">{{user.name}}</label>
+        <input class="apo-user-checkbox" type="checkbox" data-id="{{user.id}}" {{#if (lookup @root.allowUsers user.id)}}checked{{/if}}></input>
+      </div>
+    {{/each}}
+    </div>
+  </div>
+  {{/if}}
 </fieldset>

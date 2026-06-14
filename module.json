@@ -27,6 +27,7 @@
       "path": "lang/pl.json"
     }
   ],
+   "socket": true,
   "description": "",
   "url": "Filled in by the release workflow",
   "manifest": "Filled in by the release workflow",

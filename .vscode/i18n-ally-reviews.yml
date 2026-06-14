@@ -37,3 +37,27 @@ reviews:
             suggestion: ''
             type: approve
             time: '2026-06-09T16:55:12.609Z'
+  apo.hasBackground:
+    locales:
+      en:
+        comments:
+          - user:
+              name: Unknown
+              email: ''
+            id: vzuv4T_OUHFXQiDX39rU-
+            comment: ''
+            suggestion: ''
+            type: approve
+            time: '2026-06-13T18:10:44.840Z'
+  apo.showtouser:
+    locales:
+      en:
+        comments:
+          - user:
+              name: Unknown
+              email: ''
+            id: gF-3Fe5j2qFzQZVBagLgl
+            comment: ''
+            suggestion: ''
+            type: approve
+            time: '2026-06-13T19:07:31.993Z'

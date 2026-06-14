@@ -3,6 +3,14 @@
     border: 1px solid;
     border-radius: 10px;
   }
+  .users {
+    align-items: center;
+    .user {
+      width: 90%;
+      min-width: 90%;
+      text-align: center;
+    }
+  }
 }
 .apo-hover {
   background: white;
