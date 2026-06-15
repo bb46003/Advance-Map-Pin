@@ -14,8 +14,19 @@ Hooks.once("init", function () {
       window.location.reload();
     }, 100),
   });
+  game.settings.register(MODULE_ID, "showNotConectedPin", {
+    name: game.i18n.localize("apo.settings.showNotConectedPin"),
+    hint: game.i18n.localize("apo.settings.showNotConectedPinHint"),
+    scope: "world",
+    type: Boolean,
+    default: false,
+    config: true,
+    onChange: foundry.utils.debounce(() => {
+      window.location.reload();
+    }, 100),
+  });
   registerHandlebarsHelpers();
-    const myPackage = game.modules.get(MODULE_ID); 
+  const myPackage = game.modules.get(MODULE_ID);
   myPackage.socketHandler = new SocketHandler();
   const original = foundry.canvas.placeables.Note._onHoverIn;
   const original2 = Object.getOwnPropertyDescriptor(
@@ -25,14 +36,26 @@ Hooks.once("init", function () {
 
   Object.defineProperty(foundry.canvas.placeables.Note.prototype, "isVisible", {
     get: function () {
+      const icon = this.document?._object.children[0];
+      if(icon){
+          const hasBackground =
+      !this.document.getFlag(MODULE_ID, "hasBackground") ?? true;
+
+    icon.bg.alpha = hasBackground ? 0.4 : 0;
+    icon.border.alpha = hasBackground ? 1 : 0;
+      }
       const base = original2.get.call(this);
-
       if (base) return true;
-      const userId = game.user.id;
-      const users = this.document?.flags?.[MODULE_ID]?.users;
-
-      if (users?.[userId] === true) return true;
-      return false;
+      const showNotConectedPin = game.settings.get(
+        MODULE_ID,
+        "showNotConectedPin",
+      );
+      if (this.entry === undefined && showNotConectedPin) {
+        const userId = game.user.id;
+        const users = this.document?.flags?.[MODULE_ID]?.users;
+        if (users?.[userId] === true) return false;
+        return true;
+      }
     },
   });
   foundry.canvas.placeables.Note._onHoverIn = function (event, options) {
@@ -130,25 +153,43 @@ Hooks.on("hoverNote", async (note, hoverIn) => {
     note.document.getFlag(MODULE_ID, "hasBackground") ?? false;
   if (hasBackground) {
     note.controlIcon.border.alpha = 0;
+    note.controlIcon.bg.alpha  = 0;
+  }else{
+    note.controlIcon.border.alpha = 1;
+    note.controlIcon.bg.alpha  = 0.4;
   }
 });
 
 Hooks.on("renderNoteConfig", async (app, html, data) => {
-  if (game.user.isGM) {
+  if (app.id !== "note-palette") {
     const template = "modules/advance-map-pin/templates/advance-pin-option.hbs";
     const note = app.document;
 
+    if (note.id === null) {
+      const saveBtn = html.querySelector("button[type='submit']");
+       saveBtn?.click();
+      setTimeout(() => {app.render(true)},50)
+    }
+    
+ 
     const apoFlags = note.flags?.[MODULE_ID] ?? {};
     const rawText = apoFlags.text ?? "";
 
     const enrichedText = await enrich(rawText);
 
-    const users = game.users
-      .filter((user) => !user.isGM)
-      .map((user) => ({
-        id: user.id,
-        name: user.name,
-      }));
+const pinAuthorId = note.document?.author ?? note.author;
+
+const users = game.users
+  .filter((user) =>
+    !user.isGM &&
+    user.id !== game.user.id &&
+    user.id !== pinAuthorId
+  )
+  .map((user) => ({
+    id: user.id,
+    name: user.name,
+  }));
+  const noOtherUsers = users.length !== 0;
     const savedUsers = apoFlags.users ?? {};
 
     const templateData = {
@@ -167,7 +208,7 @@ Hooks.on("renderNoteConfig", async (app, html, data) => {
       hasBackground: apoFlags.hasBackground ?? false,
       users: users,
       allowUsers: savedUsers,
-      doNotHaveJournal: true,
+      noOtherUser: noOtherUsers,
     };
 
     const content = await foundry.applications.handlebars.renderTemplate(
@@ -200,79 +241,20 @@ Hooks.on("renderNoteConfig", async (app, html, data) => {
     const saveButton = html.querySelector(".form-footer button[type='submit']");
 
     saveButton.addEventListener("click", async () => {
+          if (note.id !== null) {
       const apo = html.querySelector(".apo");
       const textField = apo.querySelector(".editor-content");
-
       const textValue = textField?.innerHTML ?? "";
-
-      const hideLabel = apo.querySelector("input[name=hideLabel]");
-      const imgField = apo.querySelector(
-        "input[name='flags.advance-map-pin.img']",
-      );
-      const alwaysShow = apo.querySelector("input[name=alwaysShow]");
-      const hasBackgroundInpout = apo.querySelector(
-        "input[name=hasBackground]",
-      );
-      const imgValue = imgField?.value ?? "";
-      const alwaysHide = hideLabel?.checked ?? false;
-      const alwaysShowValue = alwaysShow?.checked ?? false;
-      const hasBackground = hasBackgroundInpout?.checked ?? false;
-
-      await note.setFlag(MODULE_ID, "text", textValue);
-      await note.setFlag(MODULE_ID, "img", imgValue);
-      await note.setFlag(MODULE_ID, "hideLabel", alwaysHide);
-      await note.setFlag(MODULE_ID, "alwaysShow", alwaysShowValue);
-      await note.setFlag(MODULE_ID, "hasBackground", hasBackground);
-      const userCheckboxes = apo.querySelectorAll(".apo-user-checkbox");
-
-      const usersState = {};
-
-      userCheckboxes.forEach((input) => {
-        const userId = input.dataset.id;
-        usersState[userId] = input.checked;
-      });
-      await note.setFlag(MODULE_ID, "users", usersState);
-      note._object.hover = alwaysShowValue;
-      const module = game.modules.get(MODULE_ID);
-      module.socketHandler.emit({
-      type: "refresNote",
-      note: note._id,
-    });
-     
+      await saveFlags(apo, textValue, note)
+          }
     });
 
     html.addEventListener("save", async (event) => {
-      const apo = html.querySelector(".apo");
-      const textField = apo.querySelector(".editor-content");
-
-      const hideLabel = apo.querySelector("input[name=hideLabel]");
-      const imgField = apo.querySelector(
-        "input[name='flags.advance-map-pin.img']",
-      );
-      const alwaysShow = apo.querySelector("input[name=alwaysShow]");
-      const hasBackgroundInpout = apo.querySelector(
-        "input[name=hasBackground]",
-      );
-      const imgValue = imgField?.value ?? "";
-      const alwaysHide = hideLabel?.checked ?? false;
-      const alwaysShowValue = alwaysShow?.checked ?? false;
-      const hasBackground = hasBackgroundInpout?.checked ?? false;
-      const userCheckboxes = apo.querySelectorAll(".apo-user-checkbox");
-
-      const usersState = {};
-
-      userCheckboxes.forEach((input) => {
-        const userId = input.dataset.id;
-        usersState[userId] = input.checked;
-      });
-      await note.setFlag(MODULE_ID, "users", usersState);
-      await note.setFlag(MODULE_ID, "img", imgValue);
-      await note.setFlag(MODULE_ID, "hideLabel", alwaysHide);
-      await note.setFlag(MODULE_ID, "alwaysShow", alwaysShowValue);
-      await note.setFlag(MODULE_ID, "hasBackground", hasBackground);
-
-      note._object.hover = alwaysShowValue;
-      await note.setFlag(MODULE_ID, "text", event.target.value);
+      if (note.id !== null) {
+        const apo = html.querySelector(".apo");
+        const textValue =  event.target.value
+        await saveFlags(apo, textValue, note)
+      }
     });
 
     const apo = html.querySelector(".apo");
@@ -337,22 +319,59 @@ function registerHandlebarsHelpers() {
     console.log(element);
   });
 }
+async function saveFlags(apo, textValue, note) {
+   const hideLabel = apo.querySelector("input[name=hideLabel]");
+      const imgField = apo.querySelector(
+        "input[name='flags.advance-map-pin.img']",
+      );
+      const alwaysShow = apo.querySelector("input[name=alwaysShow]");
+      const hasBackgroundInpout = apo.querySelector(
+        "input[name=hasBackground]",
+      );
+      const imgValue = imgField?.value ?? "";
+      const alwaysHide = hideLabel?.checked ?? false;
+      const alwaysShowValue = alwaysShow?.checked ?? false;
+      const hasBackground = hasBackgroundInpout?.checked ?? false;
+
+      await note.setFlag(MODULE_ID, "text", textValue);
+      await note.setFlag(MODULE_ID, "img", imgValue);
+      await note.setFlag(MODULE_ID, "hideLabel", alwaysHide);
+      await note.setFlag(MODULE_ID, "alwaysShow", alwaysShowValue);
+      await note.setFlag(MODULE_ID, "hasBackground", hasBackground);
+      const userCheckboxes = apo.querySelectorAll(".apo-user-checkbox");
+
+      const usersState = {};
+
+      userCheckboxes.forEach((input) => {
+        const userId = input.dataset.id;
+        usersState[userId] = input.checked;
+      });
+      await note.setFlag(MODULE_ID, "users", usersState);
+      note._object.hover = alwaysShowValue;
+      const module = game.modules.get(MODULE_ID);
+      module.socketHandler.emit({
+        type: "refresNote",
+        note: note._id,
+      });  
+      const icon = canvas.notes.get(note._id);
+       icon._refreshVisibility();
+}
 export class SocketHandler {
   constructor() {
     this.identifier = "module." + MODULE_ID;
     this.registerSocketEvents();
   }
   registerSocketEvents() {
-    game.socket.on("module."+ MODULE_ID, async (data) => {
+    game.socket.on("module." + MODULE_ID, async (data) => {
       switch (data.type) {
         case "refresNote": {
-          const note = canvas.notes.get(data.note)
-          note._refreshVisibility()
+          const note = canvas.notes.get(data.note);
+          note._refreshVisibility();
         }
       }
     });
   }
-    emit(data) {
+  emit(data) {
     return game.socket.emit(this.identifier, data);
   }
 }

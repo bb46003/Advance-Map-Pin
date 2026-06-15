@@ -1,15 +1,17 @@
 {
   "apo": {
     "header": "Advance Map Pin Options",
-    "customText": "Inster Your custom text to Map Note while hover",
-    "useImg": "Add Image to Map Note while hover",
-    "hideLabel": "Hide label and Custom Overlay when hover",
+    "customText": "Enter the text to appear when hovering the mouse pointer over the Map Note",
+    "useImg": "Image path for image to appear when hovering the mouse pointer over the Map Note",
+    "hideLabel": "Hide Label and Custom Overlay when hovering",
     "settings": {
-      "allPinVisible": "Map Note Title always visible",
-      "allPinVisibleHint": "Name of each Map Note will be always visible with out need for hovering."
+      "allPinVisible": "Map Note Label always visible",
+      "allPinVisibleHint": "Name of each Map Note will be always visible with out need for hovering.",
+      "showNotConectedPin": "Always show Map Pin not connected to Journal",
+      "showNotConectedPinHint": "All Map Pins not connectet to Journal will be visible for all Users"
     },
-    "alwaysVisible": "This Note Name will be always visible",
+    "alwaysVisible": "Map Note Label always visible",
     "hasBackground": "Remove Pin dorger and backgroind",
-    "showtouser": "Select users which can see this Pin"
+    "showtouser": "Select users which can't see this Pin"
   }
 }

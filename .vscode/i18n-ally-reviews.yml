@@ -7,57 +7,81 @@ reviews:
         comments:
           - user:
               name: Unknown
-              email: ''
+              email: ""
             id: mDpNQb-YgVERYfhQUcQsc
-            comment: ''
-            suggestion: ''
+            comment: ""
+            suggestion: ""
             type: approve
-            time: '2026-06-09T16:51:47.936Z'
+            time: "2026-06-09T16:51:47.936Z"
   apo.settings.allPinVisibleHint:
     locales:
       en:
         comments:
           - user:
               name: Unknown
-              email: ''
+              email: ""
             id: Q_-GJKMmimX-wz80hBHWR
-            comment: ''
-            suggestion: ''
+            comment: ""
+            suggestion: ""
             type: approve
-            time: '2026-06-09T16:53:01.652Z'
+            time: "2026-06-09T16:53:01.652Z"
   apo.alwaysVisible:
     locales:
       en:
         comments:
           - user:
               name: Unknown
-              email: ''
+              email: ""
             id: TsBspaveGUvRahy5RiXFu
-            comment: ''
-            suggestion: ''
+            comment: ""
+            suggestion: ""
             type: approve
-            time: '2026-06-09T16:55:12.609Z'
+            time: "2026-06-09T16:55:12.609Z"
   apo.hasBackground:
     locales:
       en:
         comments:
           - user:
               name: Unknown
-              email: ''
+              email: ""
             id: vzuv4T_OUHFXQiDX39rU-
-            comment: ''
-            suggestion: ''
+            comment: ""
+            suggestion: ""
             type: approve
-            time: '2026-06-13T18:10:44.840Z'
+            time: "2026-06-13T18:10:44.840Z"
   apo.showtouser:
     locales:
       en:
         comments:
           - user:
               name: Unknown
-              email: ''
+              email: ""
             id: gF-3Fe5j2qFzQZVBagLgl
-            comment: ''
-            suggestion: ''
+            comment: ""
+            suggestion: ""
             type: approve
-            time: '2026-06-13T19:07:31.993Z'
+            time: "2026-06-13T19:07:31.993Z"
+  apo.settings.showNotConectedPin:
+    locales:
+      en:
+        comments:
+          - user:
+              name: Unknown
+              email: ""
+            id: jehdEqTnjpzI80p5EIady
+            comment: ""
+            suggestion: ""
+            type: approve
+            time: "2026-06-15T12:49:48.854Z"
+  apo.settings.showNotConectedPinHint:
+    locales:
+      en:
+        comments:
+          - user:
+              name: Unknown
+              email: ""
+            id: 0K8ftorLgFg4RJhKNYAXz
+            comment: ""
+            suggestion: ""
+            type: approve
+            time: "2026-06-15T12:50:21.699Z"

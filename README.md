@@ -1,4 +1,5 @@
 # Advance-Map-Pin
+
 This module adds new features to Map Notes. In the Note configuration, you will find the following settings:
 <img width="446" height="405" alt="image" src="https://github.com/user-attachments/assets/5d7e39ef-03d3-4c71-add2-8124d301cfd6" /><br>
 These settings are specific to each Map Note and override the global module settings.
