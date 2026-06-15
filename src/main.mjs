@@ -37,12 +37,12 @@ Hooks.once("init", function () {
   Object.defineProperty(foundry.canvas.placeables.Note.prototype, "isVisible", {
     get: function () {
       const icon = this.document?._object.children[0];
-      if(icon){
-          const hasBackground =
-      !this.document.getFlag(MODULE_ID, "hasBackground") ?? true;
+      if (icon) {
+        const hasBackground =
+          !this.document.getFlag(MODULE_ID, "hasBackground") ?? true;
 
-    icon.bg.alpha = hasBackground ? 0.4 : 0;
-    icon.border.alpha = hasBackground ? 1 : 0;
+        icon.bg.alpha = hasBackground ? 0.4 : 0;
+        icon.border.alpha = hasBackground ? 1 : 0;
       }
       const base = original2.get.call(this);
       if (base) return true;
@@ -137,26 +137,57 @@ Hooks.on("hoverNote", async (note, hoverIn) => {
 
   hoverElement = document.createElement("div");
   hoverElement.classList.add("apo-hover");
-
   hoverElement.innerHTML = content;
+  const offsetX = apoFlags?.pixelOffsetX ?? 50;
+    const offsetY = apoFlags?.pixelOffsetY ?? 50;
+  const direction = apoFlags?.direction ?? "right";
+  const dirMap = {
+    top: [0, -1],
+    "top-right": [1, -1],
+    right: [1, 0],
+    "bottom-right": [1, 1],
+    bottom: [0, 1],
+    "bottom-left": [-1, 1],
+    left: [-1, 0],
+    "top-left": [-1, -1],
+  };
 
-  const screenX = note.x + 150;
-  const screenY = note.y - 150;
+  const [dx, dy] = dirMap[direction] ?? [1, 0];
 
+  const screenX = note.x + dx * offsetX;
+  const screenY = note.y + dy * offsetY;
+  let backgroundColor = apoFlags?.backgroundColor;
+  const uiConfig = game.settings.get("core", "uiConfig");
+  const theme = uiConfig.colorScheme.interface;
+  let textColor;
+  if (!backgroundColor) {
+    switch (theme) {
+      case "light":
+        backgroundColor = "white";
+        textColor = "black";
+        break;
+      case "dark":
+        backgroundColor = "black";
+        textColor = "white";
+        break;
+    }
+  }
   hoverElement.style.position = "absolute";
   hoverElement.style.left = `${screenX}px`;
   hoverElement.style.top = `${screenY}px`;
   hoverElement.style.pointerEvents = "none";
+  hoverElement.style.background = backgroundColor;
+  hoverElement.style.color = textColor;
 
   document.getElementById("hud").appendChild(hoverElement);
   const hasBackground =
     note.document.getFlag(MODULE_ID, "hasBackground") ?? false;
   if (hasBackground) {
     note.controlIcon.border.alpha = 0;
-    note.controlIcon.bg.alpha  = 0;
-  }else{
+    note.controlIcon.bg.alpha = 0;
+  } else {
     note.controlIcon.border.alpha = 1;
-    note.controlIcon.bg.alpha  = 0.4;
+    note.controlIcon.bg.alpha = 0.4;
   }
 });
 
@@ -164,34 +195,47 @@ Hooks.on("renderNoteConfig", async (app, html, data) => {
   if (app.id !== "note-palette") {
     const template = "modules/advance-map-pin/templates/advance-pin-option.hbs";
     const note = app.document;
-
+    const element = app.element
+   element.classList.add("custom-width");
     if (note.id === null) {
       const saveBtn = html.querySelector("button[type='submit']");
-       saveBtn?.click();
-      setTimeout(() => {app.render(true)},50)
+      saveBtn?.click();
+      setTimeout(() => {
+        app.render(true);
+      }, 50);
     }
-    
- 
+
     const apoFlags = note.flags?.[MODULE_ID] ?? {};
     const rawText = apoFlags.text ?? "";
 
     const enrichedText = await enrich(rawText);
 
-const pinAuthorId = note.document?.author ?? note.author;
+    const pinAuthorId = note.document?.author ?? note.author;
 
-const users = game.users
-  .filter((user) =>
-    !user.isGM &&
-    user.id !== game.user.id &&
-    user.id !== pinAuthorId
-  )
-  .map((user) => ({
-    id: user.id,
-    name: user.name,
-  }));
-  const noOtherUsers = users.length !== 0;
+    const users = game.users
+      .filter(
+        (user) =>
+          !user.isGM && user.id !== game.user.id && user.id !== pinAuthorId,
+      )
+      .map((user) => ({
+        id: user.id,
+        name: user.name,
+      }));
+    const noOtherUsers = users.length !== 0;
     const savedUsers = apoFlags.users ?? {};
-
+    const uiConfig = game.settings.get("core", "uiConfig");
+    const theme = uiConfig.colorScheme.interface;
+    let backgroundColor = apoFlags?.backgroundColor;
+    if (!backgroundColor) {
+      switch (theme) {
+        case "light":
+          backgroundColor = "white";
+          break;
+        case "dark":
+          backgroundColor = "black";
+          break;
+      }
+    }
     const templateData = {
       text: {
         value: rawText,
@@ -206,6 +250,10 @@ const users = game.users
       hideLabel: apoFlags.hideLabel ?? false,
       alwaysShow: apoFlags.alwaysShow ?? false,
       hasBackground: apoFlags.hasBackground ?? false,
+      direction: apoFlags.direction ?? "top",
+      pixelOffsetX: apoFlags.pixelOffsetX ?? 50,
+      pixelOffsetY: apoFlags.pixelOffsetY ?? 50,
+      backgroundColor: backgroundColor,
       users: users,
       allowUsers: savedUsers,
       noOtherUser: noOtherUsers,
@@ -241,19 +289,19 @@ const users = game.users
     const saveButton = html.querySelector(".form-footer button[type='submit']");
 
     saveButton.addEventListener("click", async () => {
-          if (note.id !== null) {
-      const apo = html.querySelector(".apo");
-      const textField = apo.querySelector(".editor-content");
-      const textValue = textField?.innerHTML ?? "";
-      await saveFlags(apo, textValue, note)
-          }
+      if (note.id !== null) {
+        const apo = html.querySelector(".apo");
+        const textField = apo.querySelector(".editor-content");
+        const textValue = textField?.innerHTML ?? "";
+        await saveFlags(apo, textValue, note);
+      }
     });
 
     html.addEventListener("save", async (event) => {
       if (note.id !== null) {
         const apo = html.querySelector(".apo");
-        const textValue =  event.target.value
-        await saveFlags(apo, textValue, note)
+        const textValue = event.target.value;
+        await saveFlags(apo, textValue, note);
       }
     });
 
@@ -318,43 +366,60 @@ function registerHandlebarsHelpers() {
   Handlebars.registerHelper("log", function (element) {
     console.log(element);
   });
+  Handlebars.registerHelper("selected", (a, b) => (a === b ? "selected" : ""));
 }
 async function saveFlags(apo, textValue, note) {
-   const hideLabel = apo.querySelector("input[name=hideLabel]");
-      const imgField = apo.querySelector(
-        "input[name='flags.advance-map-pin.img']",
-      );
-      const alwaysShow = apo.querySelector("input[name=alwaysShow]");
-      const hasBackgroundInpout = apo.querySelector(
-        "input[name=hasBackground]",
-      );
-      const imgValue = imgField?.value ?? "";
-      const alwaysHide = hideLabel?.checked ?? false;
-      const alwaysShowValue = alwaysShow?.checked ?? false;
-      const hasBackground = hasBackgroundInpout?.checked ?? false;
+  const hideLabel = apo.querySelector("input[name=hideLabel]");
+  const imgField = apo.querySelector("input[name='flags.advance-map-pin.img']");
+  const alwaysShow = apo.querySelector("input[name=alwaysShow]");
+  const hasBackgroundInput = apo.querySelector("input[name=hasBackground]");
 
-      await note.setFlag(MODULE_ID, "text", textValue);
-      await note.setFlag(MODULE_ID, "img", imgValue);
-      await note.setFlag(MODULE_ID, "hideLabel", alwaysHide);
-      await note.setFlag(MODULE_ID, "alwaysShow", alwaysShowValue);
-      await note.setFlag(MODULE_ID, "hasBackground", hasBackground);
-      const userCheckboxes = apo.querySelectorAll(".apo-user-checkbox");
+  const directionInput = apo.querySelector("select[name=direction]");
+  const pixelOffsetXInput = apo.querySelector("input[name=pixelOffsetX]");
+    const pixelOffsetYInput = apo.querySelector("input[name=pixelOffsetY]");
 
-      const usersState = {};
+  const backgroundColorInput = apo.querySelector("[name=backgroundColor]");
 
-      userCheckboxes.forEach((input) => {
-        const userId = input.dataset.id;
-        usersState[userId] = input.checked;
-      });
-      await note.setFlag(MODULE_ID, "users", usersState);
-      note._object.hover = alwaysShowValue;
-      const module = game.modules.get(MODULE_ID);
-      module.socketHandler.emit({
-        type: "refresNote",
-        note: note._id,
-      });  
-      const icon = canvas.notes.get(note._id);
-       icon._refreshVisibility();
+  const imgValue = imgField?.value ?? "";
+
+  const hideLabelValue = hideLabel?.checked ?? false;
+  const alwaysShowValue = alwaysShow?.checked ?? false;
+  const hasBackground = hasBackgroundInput?.checked ?? false;
+
+  const direction = directionInput?.value ?? "top";
+  const pixelOffsetX = Number(pixelOffsetXInput?.value ?? 0);
+  const pixelOffsetY = Number(pixelOffsetYInput?.value ?? 0);
+  const backgroundColor = backgroundColorInput?.value ?? "#ffffff";
+
+  const userCheckboxes = apo.querySelectorAll(".apo-user-checkbox");
+
+  const usersState = {};
+  userCheckboxes.forEach((input) => {
+    const userId = input.dataset.id;
+    usersState[userId] = input.checked;
+  });
+
+  await note.setFlag(MODULE_ID, "text", textValue);
+  await note.setFlag(MODULE_ID, "img", imgValue);
+  await note.setFlag(MODULE_ID, "hideLabel", hideLabelValue);
+  await note.setFlag(MODULE_ID, "alwaysShow", alwaysShowValue);
+  await note.setFlag(MODULE_ID, "hasBackground", hasBackground);
+  await note.setFlag(MODULE_ID, "direction", direction);
+  await note.setFlag(MODULE_ID, "pixelOffsetX", pixelOffsetX);
+    await note.setFlag(MODULE_ID, "pixelOffsetY", pixelOffsetY);
+  await note.setFlag(MODULE_ID, "backgroundColor", backgroundColor);
+  await note.setFlag(MODULE_ID, "users", usersState);
+
+  note._object.hover = alwaysShowValue;
+
+  const module = game.modules.get(MODULE_ID);
+  module.socketHandler.emit({
+    type: "refresNote",
+    note: note._id,
+  });
+
+  const icon = canvas.notes.get(note._id);
+  icon?._refreshVisibility();
 }
 export class SocketHandler {
   constructor() {

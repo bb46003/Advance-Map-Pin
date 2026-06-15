@@ -11,7 +11,22 @@
       "showNotConectedPinHint": "All Map Pins not connectet to Journal will be visible for all Users"
     },
     "alwaysVisible": "Map Note Label always visible",
-    "hasBackground": "Remove Pin dorger and backgroind",
-    "showtouser": "Select users which can't see this Pin"
+    "hasBackground": "Remove Pin border and background",
+    "showtouser": "Select users which can't see this Pin",
+    "colorOFBackground": "Select background color for Custom Overlay",
+    "position": "Select direction where Custom Overlay should be display",
+    "direction": {
+      "top": "Top",
+      "topRight": "Top Right",
+      "right": "Right",
+      "bottomRight": "Bottom Right",
+      "bottom": "Bottom",
+      "bottomLeft": "Bottom Left",
+      "left": "Left",
+      "topLeft": "Top Left"
+    },
+    "pixelOffset": "Offset of Custom Overly in pixel",
+    "pixelOffsetY": "Offset in Y direction",
+    "pixelOffsetX": "Offset in X direction"
   }
 }

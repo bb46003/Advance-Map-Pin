@@ -15,12 +15,76 @@
     <label>{{localize "apo.useImg"}}</label>
     <div class="form-fields flexrow">
       <input type="text" name="flags.advance-map-pin.img" value="{{img}}" />
-      <button type="button" class="file-picker" data-type="image" data-target="flags.advance-map-pin.img">
+      <button
+        type="button"
+        class="file-picker"
+        data-type="image"
+        data-target="flags.advance-map-pin.img"
+      >
         <i class="fas fa-folder-open"></i>
       </button>
     </div>
   </div>
-  <div class="form-group" >
+  <div class="form-group">
+    <label>{{localize "apo.colorOFBackground"}}</label>
+    <div class="form-fields">
+      <color-picker
+        name="backgroundColor"
+        value="{{backgroundColor}}"
+        placeholder="#ffffff"
+      >
+        <input type="text" placeholder="#ffffff" />
+        <input type="color" />
+      </color-picker>
+    </div>
+  </div>
+  <div class="form-group">
+    <label>{{localize "apo.position"}}</label>
+    <select class="direction" name="direction">
+      <option value="top" {{selected "top" direction}}>{{localize
+          "apo.direction.top"
+        }}</option>
+      <option value="top-right" {{selected "top-right" direction}}>{{localize
+          "apo.direction.topRight"
+        }}</option>
+      <option value="right" {{selected "right" direction}}>{{localize
+          "apo.direction.right"
+        }}</option>
+      <option
+        value="bottom-right"
+        {{selected "bottom-right" direction}}
+      >{{localize "apo.direction.bottomRight"}}</option>
+      <option value="bottom" {{selected "bottom" direction}}>{{localize
+          "apo.direction.bottom"
+        }}</option>
+      <option
+        value="bottom-left"
+        {{selected "bottom-left" direction}}
+      >{{localize "apo.direction.bottomLeft"}}</option>
+      <option value="left" {{selected "left" direction}}>{{localize
+          "apo.direction.left"
+        }}</option>
+      <option value="top-left" {{selected "top-left" direction}}>{{localize
+          "apo.direction.topLeft"
+        }}</option>
+    </select>
+  </div>
+  <div class="form-group">
+    <label>{{localize "apo.pixelOffset"}}</label>
+    <div class="flexcol">
+    <div class="flexcol">
+      <label>{{localize "apo.pixelOffsetX"}}</label>
+    <input type="number" min="0" name="pixelOffsetX" value="{{pixelOffsetX}}" />
+
+    </div>
+        <div class="flexcol">
+      <label>{{localize "apo.pixelOffsetY"}}</label>
+    <input type="number" min="0" name="pixelOffsetY" value="{{pixelOffsetY}}" />
+
+    </div>
+    </div>
+  </div>
+<div class="form-group" >
     <label>{{localize "apo.hideLabel"}}</label>  
     <input type="checkbox" name="hideLabel" {{#if hideLabel}}checked{{/if}}>
   </div>

@@ -11,6 +11,19 @@
       text-align: center;
     }
   }
+  .form-group{
+    label{
+      min-width: 250px;
+    }
+    select,input{
+      text-align: center;
+    }
+    .flexcol{
+      label{
+        text-align: center;
+      }
+    }
+  }
 }
 .apo-hover {
   background: white;
@@ -18,4 +31,7 @@
   img {
     max-height: 550px;
   }
+}
+.custom-width{
+  min-width: 600px;
 }
