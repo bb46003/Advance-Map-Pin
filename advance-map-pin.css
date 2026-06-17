@@ -11,15 +11,16 @@
       text-align: center;
     }
   }
-  .form-group{
-    label{
+  .form-group {
+    label {
       min-width: 250px;
     }
-    select,input{
+    select,
+    input {
       text-align: center;
     }
-    .flexcol{
-      label{
+    .flexcol {
+      label {
         text-align: center;
       }
     }
@@ -32,6 +33,6 @@
     max-height: 550px;
   }
 }
-.custom-width{
+.custom-width {
   min-width: 600px;
 }

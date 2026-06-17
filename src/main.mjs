@@ -36,65 +36,49 @@ Hooks.once("init", function () {
 
   Object.defineProperty(foundry.canvas.placeables.Note.prototype, "isVisible", {
     get: function () {
-Object.defineProperty(foundry.canvas.placeables.Note.prototype, "isVisible", {
-  get: function () {
-    const icon = this.document?._object?.children?.[0];
+      const icon = this.document?._object?.children?.[0];
+      if (icon) {
+        const hasBackground =
+          this.document.getFlag(MODULE_ID, "hasBackground") ?? true;
 
-
-    if (icon) {
-      const hasBackground =
-        this.document.getFlag(MODULE_ID, "hasBackground") ?? true;
-
-      icon.bg.alpha = hasBackground ? 0.4 : 0;
-      icon.border.alpha = hasBackground ? 1 : 0;
-    }
-    const baseVisible = original2.get.call(this);
-
-    const useTokenVision = canvas.scene?.tokenVision ?? false;
-
-    if (!useTokenVision) {
-      return baseVisible;
-    }
-
-    const token =
-      canvas.tokens.controlled[0] ??
-      game.user.character?.getActiveTokens()?.[0];
-
-    if (!token) {
-      return baseVisible;
-    }
-
-    const point = { x: this.x, y: this.y };
-
-    const visibleToToken = canvas.visibility.testVisibility(point, {
-      object: token,
-      tolerance: 2,
-    });
-
-    if (!visibleToToken) {
-      return false;
-    }
-    const showNotConnectedPin = game.settings.get(
-      MODULE_ID,
-      "showNotConectedPin"
-    );
-
-    if (this.entry === undefined && showNotConnectedPin) {
-      const userId = game.user.id;
-      const users = this.document?.flags?.[MODULE_ID]?.users;
-
-      // hidden for specific user
-      if (users?.[userId] === true) {
+        icon.bg.alpha = hasBackground ? 0.4 : 0;
+        icon.border.alpha = hasBackground ? 1 : 0;
+      }
+      const baseVisible = original2.get.call(this);
+      const useTokenVision = canvas.scene?.tokenVision ?? false;
+      if (!useTokenVision) {
+        return baseVisible;
+      }
+      const token =
+        canvas.tokens.controlled[0] ??
+        game.user.character?.getActiveTokens()?.[0];
+      if (!token) {
+        return baseVisible;
+      }
+      const point = { x: this.x, y: this.y };
+      const visibleToToken = canvas.visibility.testVisibility(point, {
+        object: token,
+        tolerance: 2,
+      });
+      if (!visibleToToken) {
         return false;
       }
-
-      return true;
-    }
-    return baseVisible;
-  },
-});
+      const showNotConnectedPin = game.settings.get(
+        MODULE_ID,
+        "showNotConectedPin",
+      );
+      if (this.entry === undefined && showNotConnectedPin) {
+        const userId = game.user.id;
+        const users = this.document?.flags?.[MODULE_ID]?.users;
+        if (users?.[userId] === true) {
+          return false;
+        }
+        return true;
+      }
+      return baseVisible;
     },
   });
+
   foundry.canvas.placeables.Note._onHoverIn = function (event, options) {
     const apoFlags = this.document?.flags?.[MODULE_ID];
     if (this.hover && !apoFlags?.alwaysShow) {
@@ -176,7 +160,7 @@ Hooks.on("hoverNote", async (note, hoverIn) => {
   hoverElement.classList.add("apo-hover");
   hoverElement.innerHTML = content;
   const offsetX = apoFlags?.pixelOffsetX ?? 50;
-    const offsetY = apoFlags?.pixelOffsetY ?? 50;
+  const offsetY = apoFlags?.pixelOffsetY ?? 50;
   const direction = apoFlags?.direction ?? "right";
   const dirMap = {
     top: [0, -1],
@@ -232,8 +216,8 @@ Hooks.on("renderNoteConfig", async (app, html, data) => {
   if (app.id !== "note-palette") {
     const template = "modules/advance-map-pin/templates/advance-pin-option.hbs";
     const note = app.document;
-    const element = app.element
-   element.classList.add("custom-width");
+    const element = app.element;
+    element.classList.add("custom-width");
     if (note.id === null) {
       const saveBtn = html.querySelector("button[type='submit']");
       saveBtn?.click();
@@ -413,7 +397,7 @@ async function saveFlags(apo, textValue, note) {
 
   const directionInput = apo.querySelector("select[name=direction]");
   const pixelOffsetXInput = apo.querySelector("input[name=pixelOffsetX]");
-    const pixelOffsetYInput = apo.querySelector("input[name=pixelOffsetY]");
+  const pixelOffsetYInput = apo.querySelector("input[name=pixelOffsetY]");
 
   const backgroundColorInput = apo.querySelector("[name=backgroundColor]");
 
@@ -443,7 +427,7 @@ async function saveFlags(apo, textValue, note) {
   await note.setFlag(MODULE_ID, "hasBackground", hasBackground);
   await note.setFlag(MODULE_ID, "direction", direction);
   await note.setFlag(MODULE_ID, "pixelOffsetX", pixelOffsetX);
-    await note.setFlag(MODULE_ID, "pixelOffsetY", pixelOffsetY);
+  await note.setFlag(MODULE_ID, "pixelOffsetY", pixelOffsetY);
   await note.setFlag(MODULE_ID, "backgroundColor", backgroundColor);
   await note.setFlag(MODULE_ID, "users", usersState);
 
