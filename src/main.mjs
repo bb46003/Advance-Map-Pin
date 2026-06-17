@@ -36,26 +36,63 @@ Hooks.once("init", function () {
 
   Object.defineProperty(foundry.canvas.placeables.Note.prototype, "isVisible", {
     get: function () {
-      const icon = this.document?._object.children[0];
-      if (icon) {
-        const hasBackground =
-          !this.document.getFlag(MODULE_ID, "hasBackground") ?? true;
+Object.defineProperty(foundry.canvas.placeables.Note.prototype, "isVisible", {
+  get: function () {
+    const icon = this.document?._object?.children?.[0];
 
-        icon.bg.alpha = hasBackground ? 0.4 : 0;
-        icon.border.alpha = hasBackground ? 1 : 0;
+
+    if (icon) {
+      const hasBackground =
+        this.document.getFlag(MODULE_ID, "hasBackground") ?? true;
+
+      icon.bg.alpha = hasBackground ? 0.4 : 0;
+      icon.border.alpha = hasBackground ? 1 : 0;
+    }
+    const baseVisible = original2.get.call(this);
+
+    const useTokenVision = canvas.scene?.tokenVision ?? false;
+
+    if (!useTokenVision) {
+      return baseVisible;
+    }
+
+    const token =
+      canvas.tokens.controlled[0] ??
+      game.user.character?.getActiveTokens()?.[0];
+
+    if (!token) {
+      return baseVisible;
+    }
+
+    const point = { x: this.x, y: this.y };
+
+    const visibleToToken = canvas.visibility.testVisibility(point, {
+      object: token,
+      tolerance: 2,
+    });
+
+    if (!visibleToToken) {
+      return false;
+    }
+    const showNotConnectedPin = game.settings.get(
+      MODULE_ID,
+      "showNotConectedPin"
+    );
+
+    if (this.entry === undefined && showNotConnectedPin) {
+      const userId = game.user.id;
+      const users = this.document?.flags?.[MODULE_ID]?.users;
+
+      // hidden for specific user
+      if (users?.[userId] === true) {
+        return false;
       }
-      const base = original2.get.call(this);
-      if (base) return true;
-      const showNotConectedPin = game.settings.get(
-        MODULE_ID,
-        "showNotConectedPin",
-      );
-      if (this.entry === undefined && showNotConectedPin) {
-        const userId = game.user.id;
-        const users = this.document?.flags?.[MODULE_ID]?.users;
-        if (users?.[userId] === true) return false;
-        return true;
-      }
+
+      return true;
+    }
+    return baseVisible;
+  },
+});
     },
   });
   foundry.canvas.placeables.Note._onHoverIn = function (event, options) {
