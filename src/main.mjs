@@ -28,7 +28,6 @@ Hooks.once("init", function () {
   registerHandlebarsHelpers();
   const myPackage = game.modules.get(MODULE_ID);
   myPackage.socketHandler = new SocketHandler();
-  const original = foundry.canvas.placeables.Note._onHoverIn;
   const original2 = Object.getOwnPropertyDescriptor(
     foundry.canvas.placeables.Note.prototype,
     "isVisible",
@@ -39,7 +38,7 @@ Hooks.once("init", function () {
       const icon = this.document?._object?.children?.[0];
       if (icon) {
         const hasBackground =
-          this.document.getFlag(MODULE_ID, "hasBackground") ?? true;
+          !this.document.getFlag(MODULE_ID, "hasBackground") ?? false;
 
         icon.bg.alpha = hasBackground ? 0.4 : 0;
         icon.border.alpha = hasBackground ? 1 : 0;
@@ -49,17 +48,26 @@ Hooks.once("init", function () {
       if (!useTokenVision) {
         return baseVisible;
       }
-      const token =
-        canvas.tokens.controlled[0] ??
-        game.user.character?.getActiveTokens()?.[0];
-      if (!token) {
+      const user = game.user;
+      let tokens = [];
+
+      if (user.isGM) {
+        const token =
+          canvas.tokens.controlled[0] ?? user.character?.getActiveTokens()?.[0];
+        if (token) tokens = [token];
+      } else {
+        tokens = canvas.tokens.placeables.filter((t) => t.actor?.isOwner);
+      }
+      if (!tokens.length) {
         return baseVisible;
       }
       const point = { x: this.x, y: this.y };
-      const visibleToToken = canvas.visibility.testVisibility(point, {
-        object: token,
-        tolerance: 2,
-      });
+      const visibleToToken = tokens.some((token) =>
+        canvas.visibility.testVisibility(point, {
+          object: token,
+          tolerance: 2,
+        }),
+      );
       if (!visibleToToken) {
         return false;
       }
@@ -67,28 +75,22 @@ Hooks.once("init", function () {
         MODULE_ID,
         "showNotConectedPin",
       );
-      if (this.entry === undefined && showNotConnectedPin) {
+      if (this.entry === undefined) {
         const userId = game.user.id;
         const users = this.document?.flags?.[MODULE_ID]?.users;
-        if (users?.[userId] === true) {
+        if (users?.[userId] === true && showNotConnectedPin) {
+          return false;
+        } else if (users?.[userId] === false && showNotConnectedPin) {
+          return true;
+        } else if (users?.[userId] === true && !showNotConnectedPin) {
+          return true;
+        } else if (users?.[userId] === false && !showNotConnectedPin) {
           return false;
         }
-        return true;
       }
       return baseVisible;
     },
   });
-
-  foundry.canvas.placeables.Note._onHoverIn = function (event, options) {
-    const apoFlags = this.document?.flags?.[MODULE_ID];
-    if (this.hover && !apoFlags?.alwaysShow) {
-      return;
-    } else {
-      this.hover = false;
-    }
-
-    return original.call(this, event, options);
-  };
 
   foundry.canvas.placeables.Note.prototype._drawControlIcon = function () {
     const iconData = {
@@ -105,6 +107,49 @@ Hooks.once("init", function () {
     icon.border.alpha = hasBackground ? 1 : 0;
 
     return icon;
+  };
+  foundry.canvas.placeables.PlaceableObject.prototype._onHoverIn = function (
+    event,
+    { hoverOutOthers = false, updateLegend = true } = {},
+  ) {
+    const apoFlags = this.document?.flags?.[MODULE_ID];
+
+    const hideOverley = apoFlags?.hideOverlay ?? false;
+    const note = this;
+    if (apoFlags?.hideLabel) {
+      event.preventDefault();
+      note.children[1]._text = "";
+    } else {
+      const journalName = note?.entry?.name;
+      const label = note.document.text;
+      if (label === "") {
+        note.children[1]._text = journalName;
+      } else {
+        note.children[1]._text = label;
+      }
+    }
+    if (this.hover && (!hideOverley || game.user.isGM)) {
+      Hooks.callAll(`hover${this.constructor.embeddedName}`, this, this.hover);
+      return;
+    }
+
+    if (this.hover) return;
+    if (event.buttons & 0x03) return; // Returning if hovering is happening with pressed left or right button
+
+    // Handle the event
+    const layer = this.layer;
+    layer.hover = this;
+    if (hoverOutOthers) {
+      for (const o of layer.placeables) {
+        if (o !== this) o._onHoverOut(event);
+      }
+    }
+    this.hover = true;
+
+    // Set render flags
+    this.renderFlags.set({ refreshState: true });
+    Hooks.callAll(`hover${this.constructor.embeddedName}`, this, this.hover);
+    if (updateLegend) ui.placeables.hoverEntry(this, true);
   };
 });
 
@@ -125,8 +170,9 @@ Hooks.on("drawNote", (note) => {
 Hooks.on("hoverNote", async (note, hoverIn) => {
   const showAll = game.settings.get(MODULE_ID, "allPinVisible");
   const apoFlags = note.document.flags?.[MODULE_ID];
-  if (!hoverIn) {
+  if (hoverIn === false) {
     if (showAll || apoFlags?.alwaysShow) {
+      event.preventDefault();
       note.hover = true;
     }
     if (hoverElement) {
@@ -139,7 +185,17 @@ Hooks.on("hoverNote", async (note, hoverIn) => {
   if (!apoFlags) return;
   if (apoFlags.hideLabel) {
     event.preventDefault();
-    note.hover = false;
+    note.children[1]._text = "";
+  } else {
+    const journalName = note?.entry?.name;
+    const label = note.document.text;
+    if (label === "") {
+      note.children[1]._text = journalName;
+    } else {
+      note.children[1]._text = label;
+    }
+  }
+  if (apoFlags?.hideOverlay === true && !game.user.isGM) {
     return;
   }
   const template = "modules/advance-map-pin/templates/hover-element.hbs";
@@ -242,6 +298,8 @@ Hooks.on("renderNoteConfig", async (app, html, data) => {
         id: user.id,
         name: user.name,
       }));
+    const allUsers = game.i18n.localize("apo.allUsers");
+    const finalUsers = [{ id: "all", name: allUsers }, ...users];
     const noOtherUsers = users.length !== 0;
     const savedUsers = apoFlags.users ?? {};
     const uiConfig = game.settings.get("core", "uiConfig");
@@ -257,6 +315,7 @@ Hooks.on("renderNoteConfig", async (app, html, data) => {
           break;
       }
     }
+    const showToAll = game.settings.get(MODULE_ID, "showNotConectedPin");
     const templateData = {
       text: {
         value: rawText,
@@ -275,9 +334,11 @@ Hooks.on("renderNoteConfig", async (app, html, data) => {
       pixelOffsetX: apoFlags.pixelOffsetX ?? 50,
       pixelOffsetY: apoFlags.pixelOffsetY ?? 50,
       backgroundColor: backgroundColor,
-      users: users,
+      users: finalUsers,
       allowUsers: savedUsers,
       noOtherUser: noOtherUsers,
+      showToAll: showToAll,
+      hideOverlay: apoFlags?.hideOverlay ?? false,
     };
 
     const content = await foundry.applications.handlebars.renderTemplate(
@@ -391,6 +452,7 @@ function registerHandlebarsHelpers() {
 }
 async function saveFlags(apo, textValue, note) {
   const hideLabel = apo.querySelector("input[name=hideLabel]");
+  const hideOverlay = apo.querySelector("input[name=hideOverlay]");
   const imgField = apo.querySelector("input[name='flags.advance-map-pin.img']");
   const alwaysShow = apo.querySelector("input[name=alwaysShow]");
   const hasBackgroundInput = apo.querySelector("input[name=hasBackground]");
@@ -404,6 +466,7 @@ async function saveFlags(apo, textValue, note) {
   const imgValue = imgField?.value ?? "";
 
   const hideLabelValue = hideLabel?.checked ?? false;
+  const hideOverlayValue = hideOverlay?.checked ?? false;
   const alwaysShowValue = alwaysShow?.checked ?? false;
   const hasBackground = hasBackgroundInput?.checked ?? false;
 
@@ -415,10 +478,26 @@ async function saveFlags(apo, textValue, note) {
   const userCheckboxes = apo.querySelectorAll(".apo-user-checkbox");
 
   const usersState = {};
+  let allSelected = false;
+
   userCheckboxes.forEach((input) => {
     const userId = input.dataset.id;
-    usersState[userId] = input.checked;
+
+    if (userId === "all") {
+      allSelected = input.checked;
+    } else {
+      usersState[userId] = input.checked;
+      usersState["all"] = false;
+    }
   });
+  if (allSelected) {
+    game.users
+      .filter((user) => !user.isGM)
+      .forEach((user) => {
+        usersState[user.id] = true;
+      });
+    usersState["all"] = true;
+  }
 
   await note.setFlag(MODULE_ID, "text", textValue);
   await note.setFlag(MODULE_ID, "img", imgValue);
@@ -430,6 +509,7 @@ async function saveFlags(apo, textValue, note) {
   await note.setFlag(MODULE_ID, "pixelOffsetY", pixelOffsetY);
   await note.setFlag(MODULE_ID, "backgroundColor", backgroundColor);
   await note.setFlag(MODULE_ID, "users", usersState);
+  await note.setFlag(MODULE_ID, "hideOverlay", hideOverlayValue);
 
   note._object.hover = alwaysShowValue;
 
@@ -439,8 +519,9 @@ async function saveFlags(apo, textValue, note) {
     note: note._id,
   });
 
-  const icon = canvas.notes.get(note._id);
-  icon?._refreshVisibility();
+  const currentNote = canvas.notes.get(note._id);
+  currentNote?._refreshVisibility();
+   Hooks.callAll("drawNote", currentNote)
 }
 export class SocketHandler {
   constructor() {
@@ -453,6 +534,7 @@ export class SocketHandler {
         case "refresNote": {
           const note = canvas.notes.get(data.note);
           note._refreshVisibility();
+          Hooks.callAll("drawNote", note)
         }
       }
     });

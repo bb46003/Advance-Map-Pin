@@ -89,6 +89,10 @@
     <input type="checkbox" name="hideLabel" {{#if hideLabel}}checked{{/if}}>
   </div>
   <div class="form-group" >
+    <label>{{localize "apo.hideOverlay"}}</label>  
+    <input type="checkbox" name="hideOverlay" {{#if hideOverlay}}checked{{/if}}>
+  </div>
+  <div class="form-group" >
     <label>{{localize "apo.alwaysVisible"}}</label>  
     <input type="checkbox" name="alwaysShow" {{#if alwaysShow}}checked{{/if}}>
   </div>
@@ -98,7 +102,11 @@
   </div>
   {{#if noOtherUser}}
   <div class="form-group" >
-    <label>{{localize "apo.showtouser"}}</label>
+    {{#if showToAll}}
+    <label>{{localize "apo.hideFromUser"}}</label>
+    {{else}}
+      <label>{{localize "apo.showtouser"}}</label>
+    {{/if}}
     <div class="flexcol">
     {{#each users as |user index|}}
       <div class="flexrow users">

@@ -3,7 +3,8 @@
     "header": "Advance Map Pin Options",
     "customText": "Enter the text to appear when hovering the mouse pointer over the Map Note",
     "useImg": "Image path for image to appear when hovering the mouse pointer over the Map Note",
-    "hideLabel": "Hide Label and Custom Overlay when hovering",
+    "hideLabel": "Hide Label when hovering",
+    "hideOverlay": "Hide Custom Overlay when hovering (not for GM)",
     "settings": {
       "allPinVisible": "Map Note Label always visible",
       "allPinVisibleHint": "Name of each Map Note will be always visible with out need for hovering.",
@@ -12,7 +13,8 @@
     },
     "alwaysVisible": "Map Note Label always visible",
     "hasBackground": "Remove Pin border and background",
-    "showtouser": "Select users which can't see this Pin",
+    "hideFromUser": "Select users which can't see this Pin",
+    "showtouser": "Select users which can see this Pin",
     "colorOFBackground": "Select background color for Custom Overlay",
     "position": "Select direction where Custom Overlay should be display",
     "direction": {
@@ -27,6 +29,7 @@
     },
     "pixelOffset": "Offset of Custom Overly in pixel",
     "pixelOffsetY": "Offset in Y direction",
-    "pixelOffsetX": "Offset in X direction"
+    "pixelOffsetX": "Offset in X direction",
+    "allUsers": "All Users"
   }
 }
