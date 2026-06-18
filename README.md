@@ -1,13 +1,16 @@
 # Advance-Map-Pin
 
-This module adds new features to Map Notes. In the Note configuration, you will find the following settings:
-<img width="446" height="405" alt="image" src="https://github.com/user-attachments/assets/5d7e39ef-03d3-4c71-add2-8124d301cfd6" /><br>
-These settings are specific to each Map Note and override the global module settings.
+This module adds new features to Map Pins, such as:
 
-When you add either an image, text, or both in the Note configuration, hovering over the Map Note will display a custom overlay element.<br>
-<img width="441" height="334" alt="image" src="https://github.com/user-attachments/assets/d7a6e6c4-e948-49e8-b8d2-5d6ddec5de59" /><br>
-If you select "Hide label and custom overlay when hovering", both the Note name and the custom overlay will not be displayed on hover.
+- Pin labels are always visible without hovering
+- Add a custom overlay with your own text and/or image
+- Customize the position of the custom overlay
+- Text for the custom overlay uses ProseMirror text editing, giving you full flexibility in how your text looks
+- Set the background color of the custom overlay as you wish
+- Allow hiding labels on hover
+- Hide or show pins for specific players even without linking to a Journal
+- Allow removal of pin background and border
 
-If you select "Map Note title always visible", the name of the Note will always be visible, even when you are not hovering over it.
+Pin Configuation<br>
+<img width="586" height="886" alt="image" src="https://github.com/user-attachments/assets/32e54b08-9e5c-4e28-8163-32e70484d24a" />
 
-In the module settings, there is also an option to apply the same behavior to all Map Notes in the World.
