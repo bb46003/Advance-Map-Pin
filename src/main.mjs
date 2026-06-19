@@ -149,7 +149,9 @@ Hooks.once("init", function () {
     // Set render flags
     this.renderFlags.set({ refreshState: true });
     Hooks.callAll(`hover${this.constructor.embeddedName}`, this, this.hover);
+       
     if (updateLegend) ui.placeables.hoverEntry(this, true);
+       
   };
 });
 
@@ -415,8 +417,18 @@ Hooks.on("renderNoteConfig", async (app, html, data) => {
         toggleGroup(hideLabel, true);
       }
     });
-  }
+const userInput = apo.querySelectorAll(".apo-user-checkbox");
+const selectAll = apo.querySelector('[data-id="all"]');
+
+selectAll.addEventListener("change", () => {
+  const isChecked = selectAll.checked;
+
+  userInput.forEach(input => {
+    input.checked = isChecked;
+  });
 });
+  }
+  })
 
 async function enrich(html) {
   if (!html) return html;
@@ -518,8 +530,8 @@ async function saveFlags(apo, textValue, note) {
     type: "refresNote",
     note: note._id,
   });
-
   const currentNote = canvas.notes.get(note._id);
+  currentNote.renderFlags.set({ redraw: true });
   currentNote?._refreshVisibility();
    Hooks.callAll("drawNote", currentNote)
 }
@@ -534,6 +546,7 @@ export class SocketHandler {
         case "refresNote": {
           const note = canvas.notes.get(data.note);
           note._refreshVisibility();
+           note.renderFlags.set({ redraw: true });
           Hooks.callAll("drawNote", note)
         }
       }
