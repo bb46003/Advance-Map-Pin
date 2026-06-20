@@ -121,9 +121,14 @@ Hooks.once("init", function () {
       note.children[1]._text = "";
     } else {
       const journalName = note?.entry?.name;
+      const pageName = note?.document?.page?.name
       const label = note.document.text;
       if (label === "") {
+        if(pageName){
+          note.children[1]._text = pageName
+        }else{
         note.children[1]._text = journalName;
+        }
       } else {
         note.children[1]._text = label;
       }
@@ -189,13 +194,18 @@ Hooks.on("hoverNote", async (note, hoverIn) => {
     event.preventDefault();
     note.children[1]._text = "";
   } else {
-    const journalName = note?.entry?.name;
-    const label = note.document.text;
-    if (label === "") {
-      note.children[1]._text = journalName;
-    } else {
-      note.children[1]._text = label;
-    }
+      const journalName = note?.entry?.name;
+      const pageName = note?.document?.page?.name
+      const label = note.document.text;
+      if (label === "") {
+        if(pageName){
+          note.children[1]._text = pageName
+        }else{
+        note.children[1]._text = journalName;
+        }
+      } else {
+        note.children[1]._text = label;
+      }
   }
   if (apoFlags?.hideOverlay === true && !game.user.isGM) {
     return;
@@ -460,7 +470,7 @@ function registerHandlebarsHelpers() {
   Handlebars.registerHelper("log", function (element) {
     console.log(element);
   });
-  Handlebars.registerHelper("selected", (a, b) => (a === b ? "selected" : ""));
+  Handlebars.registerHelper("selectedDirection", (a, b) => (a === b ? "selected" : ""));
 }
 async function saveFlags(apo, textValue, note) {
   const hideLabel = apo.querySelector("input[name=hideLabel]");
