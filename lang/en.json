@@ -30,6 +30,9 @@
     "pixelOffset": "Offset of Custom Overly in pixel",
     "pixelOffsetY": "Offset in Y direction",
     "pixelOffsetX": "Offset in X direction",
-    "allUsers": "All Users"
+    "allUsers": "All Users",
+    "labelBehaviour": "Map Not Label Visibility",
+    "foundryDefault": "Foundry default",
+    "GMLabel": "Note label for GM"
   }
 }

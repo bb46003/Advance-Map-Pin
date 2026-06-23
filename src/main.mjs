@@ -45,9 +45,6 @@ Hooks.once("init", function () {
       }
       const baseVisible = original2.get.call(this);
       const useTokenVision = canvas.scene?.tokenVision ?? false;
-      if (!useTokenVision) {
-        return baseVisible;
-      }
       const user = game.user;
       let tokens = [];
 
@@ -58,9 +55,7 @@ Hooks.once("init", function () {
       } else {
         tokens = canvas.tokens.placeables.filter((t) => t.actor?.isOwner);
       }
-      if (!tokens.length) {
-        return baseVisible;
-      }
+
       const point = { x: this.x, y: this.y };
       const visibleToToken = tokens.some((token) =>
         canvas.visibility.testVisibility(point, {
@@ -68,9 +63,7 @@ Hooks.once("init", function () {
           tolerance: 2,
         }),
       );
-      if (!visibleToToken) {
-        return false;
-      }
+
       const showNotConnectedPin = game.settings.get(
         MODULE_ID,
         "showNotConectedPin",
@@ -123,6 +116,7 @@ Hooks.once("init", function () {
       const journalName = note?.entry?.name;
       const pageName = note?.document?.page?.name
       const label = note.document.text;
+      const gmlabel = apoFlags?.gmLabel;
       if (label === "") {
         if(pageName){
           note.children[1]._text = pageName
@@ -131,6 +125,9 @@ Hooks.once("init", function () {
         }
       } else {
         note.children[1]._text = label;
+      }
+      if(game.user.isGM && gmlabel !== "" && gmlabel){
+        note.children[1]._text = gmlabel;
       }
     }
     if (this.hover && (!hideOverley || game.user.isGM)) {
@@ -197,6 +194,7 @@ Hooks.on("hoverNote", async (note, hoverIn) => {
       const journalName = note?.entry?.name;
       const pageName = note?.document?.page?.name
       const label = note.document.text;
+      const gmlabel = apoFlags?.gmLabel;
       if (label === "") {
         if(pageName){
           note.children[1]._text = pageName
@@ -205,6 +203,9 @@ Hooks.on("hoverNote", async (note, hoverIn) => {
         }
       } else {
         note.children[1]._text = label;
+      }
+      if(game.user.isGM && gmlabel !== "" && gmlabel){
+        note.children[1]._text = gmlabel;
       }
   }
   if (apoFlags?.hideOverlay === true && !game.user.isGM) {
@@ -327,7 +328,12 @@ Hooks.on("renderNoteConfig", async (app, html, data) => {
           break;
       }
     }
-    const showToAll = game.settings.get(MODULE_ID, "showNotConectedPin");
+    let defaultLabel = false;
+     const showToAll = game.settings.get(MODULE_ID, "showNotConectedPin");
+    if(!apoFlags?.alwaysShow && !apoFlags?.hideLabel && !showToAll){
+      defaultLabel = true
+    }
+
     const templateData = {
       text: {
         value: rawText,
@@ -351,6 +357,9 @@ Hooks.on("renderNoteConfig", async (app, html, data) => {
       noOtherUser: noOtherUsers,
       showToAll: showToAll,
       hideOverlay: apoFlags?.hideOverlay ?? false,
+      default: defaultLabel,
+      isGM: game.user.isGM,
+      gmLabel: apoFlags?.gmLabel ?? ""
     };
 
     const content = await foundry.applications.handlebars.renderTemplate(
@@ -400,33 +409,9 @@ Hooks.on("renderNoteConfig", async (app, html, data) => {
     });
 
     const apo = html.querySelector(".apo");
-    const hideLabel = apo.querySelector("input[name=hideLabel]");
-    const alwaysShow = apo.querySelector("input[name=alwaysShow]");
 
-    function toggleGroup(input, show) {
-      const group = input.closest(".form-group");
-      if (!group) return;
-      group.style.display = show ? "" : "none";
-    }
-    hideLabel.addEventListener("change", () => {
-      if (hideLabel.checked) {
-        alwaysShow.checked = false;
-        toggleGroup(alwaysShow, false);
-        toggleGroup(hideLabel, true);
-      } else {
-        toggleGroup(alwaysShow, true);
-      }
-    });
 
-    alwaysShow.addEventListener("change", () => {
-      if (alwaysShow.checked) {
-        hideLabel.checked = false;
-        toggleGroup(hideLabel, false);
-        toggleGroup(alwaysShow, true);
-      } else {
-        toggleGroup(hideLabel, true);
-      }
-    });
+   
 const userInput = apo.querySelectorAll(".apo-user-checkbox");
 const selectAll = apo.querySelector('[data-id="all"]');
 
@@ -473,12 +458,12 @@ function registerHandlebarsHelpers() {
   Handlebars.registerHelper("selectedDirection", (a, b) => (a === b ? "selected" : ""));
 }
 async function saveFlags(apo, textValue, note) {
-  const hideLabel = apo.querySelector("input[name=hideLabel]");
+ 
   const hideOverlay = apo.querySelector("input[name=hideOverlay]");
   const imgField = apo.querySelector("input[name='flags.advance-map-pin.img']");
-  const alwaysShow = apo.querySelector("input[name=alwaysShow]");
+  const label = apo.querySelector("select[data-type=label]")
   const hasBackgroundInput = apo.querySelector("input[name=hasBackground]");
-
+  
   const directionInput = apo.querySelector("select[name=direction]");
   const pixelOffsetXInput = apo.querySelector("input[name=pixelOffsetX]");
   const pixelOffsetYInput = apo.querySelector("input[name=pixelOffsetY]");
@@ -487,16 +472,16 @@ async function saveFlags(apo, textValue, note) {
 
   const imgValue = imgField?.value ?? "";
 
-  const hideLabelValue = hideLabel?.checked ?? false;
+  const hideLabelValue = label.value  === "hideLabel";
   const hideOverlayValue = hideOverlay?.checked ?? false;
-  const alwaysShowValue = alwaysShow?.checked ?? false;
+  const alwaysShowValue = label.value  === "alwaysShow";
   const hasBackground = hasBackgroundInput?.checked ?? false;
-
+  const defaultLabel = label.value  === "default";
   const direction = directionInput?.value ?? "top";
   const pixelOffsetX = Number(pixelOffsetXInput?.value ?? 0);
   const pixelOffsetY = Number(pixelOffsetYInput?.value ?? 0);
   const backgroundColor = backgroundColorInput?.value ?? "#ffffff";
-
+ 
   const userCheckboxes = apo.querySelectorAll(".apo-user-checkbox");
 
   const usersState = {};
@@ -532,7 +517,14 @@ async function saveFlags(apo, textValue, note) {
   await note.setFlag(MODULE_ID, "backgroundColor", backgroundColor);
   await note.setFlag(MODULE_ID, "users", usersState);
   await note.setFlag(MODULE_ID, "hideOverlay", hideOverlayValue);
+ await note.setFlag(MODULE_ID, "defaultLabel", defaultLabel);
+ if(game.user.isGM){
 
+ 
+ const gmLabel = apo.querySelector("input[name=gmLabel]")
+  const gmLabelText = gmLabel?.value;
+ await note.setFlag(MODULE_ID, "gmLabel", gmLabelText);
+ }
   note._object.hover = alwaysShowValue;
 
   const module = game.modules.get(MODULE_ID);

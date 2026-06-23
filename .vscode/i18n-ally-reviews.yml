@@ -7,161 +7,197 @@ reviews:
         comments:
           - user:
               name: Unknown
-              email: ""
+              email: ''
             id: mDpNQb-YgVERYfhQUcQsc
-            comment: ""
-            suggestion: ""
+            comment: ''
+            suggestion: ''
             type: approve
-            time: "2026-06-09T16:51:47.936Z"
+            time: '2026-06-09T16:51:47.936Z'
   apo.settings.allPinVisibleHint:
     locales:
       en:
         comments:
           - user:
               name: Unknown
-              email: ""
+              email: ''
             id: Q_-GJKMmimX-wz80hBHWR
-            comment: ""
-            suggestion: ""
+            comment: ''
+            suggestion: ''
             type: approve
-            time: "2026-06-09T16:53:01.652Z"
+            time: '2026-06-09T16:53:01.652Z'
   apo.alwaysVisible:
     locales:
       en:
         comments:
           - user:
               name: Unknown
-              email: ""
+              email: ''
             id: TsBspaveGUvRahy5RiXFu
-            comment: ""
-            suggestion: ""
+            comment: ''
+            suggestion: ''
             type: approve
-            time: "2026-06-09T16:55:12.609Z"
+            time: '2026-06-09T16:55:12.609Z'
   apo.hasBackground:
     locales:
       en:
         comments:
           - user:
               name: Unknown
-              email: ""
+              email: ''
             id: vzuv4T_OUHFXQiDX39rU-
-            comment: ""
-            suggestion: ""
+            comment: ''
+            suggestion: ''
             type: approve
-            time: "2026-06-13T18:10:44.840Z"
+            time: '2026-06-13T18:10:44.840Z'
   apo.showtouser:
     locales:
       en:
         comments:
           - user:
               name: Unknown
-              email: ""
+              email: ''
             id: gF-3Fe5j2qFzQZVBagLgl
-            comment: ""
-            suggestion: ""
+            comment: ''
+            suggestion: ''
             type: approve
-            time: "2026-06-13T19:07:31.993Z"
+            time: '2026-06-13T19:07:31.993Z'
   apo.settings.showNotConectedPin:
     locales:
       en:
         comments:
           - user:
               name: Unknown
-              email: ""
+              email: ''
             id: jehdEqTnjpzI80p5EIady
-            comment: ""
-            suggestion: ""
+            comment: ''
+            suggestion: ''
             type: approve
-            time: "2026-06-15T12:49:48.854Z"
+            time: '2026-06-15T12:49:48.854Z'
   apo.settings.showNotConectedPinHint:
     locales:
       en:
         comments:
           - user:
               name: Unknown
-              email: ""
+              email: ''
             id: 0K8ftorLgFg4RJhKNYAXz
-            comment: ""
-            suggestion: ""
+            comment: ''
+            suggestion: ''
             type: approve
-            time: "2026-06-15T12:50:21.699Z"
+            time: '2026-06-15T12:50:21.699Z'
   apo.colorOFBackground:
     locales:
       en:
         comments:
           - user:
               name: Unknown
-              email: ""
+              email: ''
             id: whHFtIDD8LIZxkTwrr2rh
-            comment: ""
-            suggestion: ""
+            comment: ''
+            suggestion: ''
             type: approve
-            time: "2026-06-15T17:50:11.231Z"
+            time: '2026-06-15T17:50:11.231Z'
   apo.position:
     locales:
       en:
         comments:
           - user:
               name: Unknown
-              email: ""
+              email: ''
             id: cuyibKY_PvaO_gKY9L7Wp
-            comment: ""
-            suggestion: ""
+            comment: ''
+            suggestion: ''
             type: approve
-            time: "2026-06-15T17:50:44.606Z"
+            time: '2026-06-15T17:50:44.606Z'
   apo.pixelOffset:
     locales:
       en:
         comments:
           - user:
               name: Unknown
-              email: ""
+              email: ''
             id: JEu6DhXRwAfE_4BROqFBN
-            comment: ""
-            suggestion: ""
+            comment: ''
+            suggestion: ''
             type: approve
-            time: "2026-06-15T17:54:04.758Z"
+            time: '2026-06-15T17:54:04.758Z'
           - user:
               name: Unknown
-              email: ""
+              email: ''
             id: D7SkFoM3ZHyociAD1MPhO
-            comment: ""
-            suggestion: ""
+            comment: ''
+            suggestion: ''
             type: approve
-            time: "2026-06-15T18:09:49.401Z"
+            time: '2026-06-15T18:09:49.401Z'
   apo.pixelOffsetY:
     locales:
       en:
         comments:
           - user:
               name: Unknown
-              email: ""
+              email: ''
             id: 07zXQv2xOGA2TZMG3bkH0
-            comment: ""
-            suggestion: ""
+            comment: ''
+            suggestion: ''
             type: approve
-            time: "2026-06-15T18:42:14.275Z"
+            time: '2026-06-15T18:42:14.275Z'
   apo.pixelOffsetX:
     locales:
       en:
         comments:
           - user:
               name: Unknown
-              email: ""
+              email: ''
             id: lXIFLk--E7jaQcu9UNFHc
-            comment: ""
-            suggestion: ""
+            comment: ''
+            suggestion: ''
             type: approve
-            time: "2026-06-15T18:42:26.232Z"
+            time: '2026-06-15T18:42:26.232Z'
   apo.allUsers:
     locales:
       en:
         comments:
           - user:
               name: Unknown
-              email: ""
+              email: ''
             id: aCfBcI8lhnFzYSZLir_sX
-            comment: ""
-            suggestion: ""
+            comment: ''
+            suggestion: ''
             type: approve
-            time: "2026-06-18T07:18:11.685Z"
+            time: '2026-06-18T07:18:11.685Z'
+  apo.labelBehaviour:
+    locales:
+      en:
+        comments:
+          - user:
+              name: Unknown
+              email: ''
+            id: qhm2AyTEa7pQ1Gu2eTh-r
+            comment: ''
+            suggestion: ''
+            type: approve
+            time: '2026-06-23T19:19:14.534Z'
+  apo.foundryDefault:
+    locales:
+      en:
+        comments:
+          - user:
+              name: Unknown
+              email: ''
+            id: rwFCuKafqozCLbv6NTy0f
+            comment: ''
+            suggestion: ''
+            type: approve
+            time: '2026-06-23T19:19:28.894Z'
+  apo.GMLabel:
+    locales:
+      en:
+        comments:
+          - user:
+              name: Unknown
+              email: ''
+            id: JICQTmHsLwSN_VsFXGk3t
+            comment: ''
+            suggestion: ''
+            type: approve
+            time: '2026-06-23T19:34:12.567Z'

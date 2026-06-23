@@ -1,5 +1,11 @@
 <fieldset class="apo">
   <legend>{{localize "apo.header"}}</legend>
+  {{#if isGM}}
+    <div class="form-group">
+      <label>{{localize "apo.GMLabel"}}</label>
+      <input type="text" name="gmLabel" value="{{gmLabel}}"></input>
+    </div>
+  {{/if}}
   <div class="form-group">
     <div class="enrich">
       <label>{{localize text.field.label}}</label>
@@ -85,16 +91,17 @@
     </div>
   </div>
 <div class="form-group" >
-    <label>{{localize "apo.hideLabel"}}</label>  
-    <input type="checkbox" name="hideLabel" {{#if hideLabel}}checked{{/if}}>
+    <label>{{localize "apo.labelBehaviour"}}</label>  
+    <select data-type="label">
+      <option value="default" {{#if default}}selected{{/if}}>{{localize "apo.foundryDefault"}}</option>"
+      <option value="hideLabel" {{#if hideLabel}}selected{{/if}}>{{localize "apo.hideLabel"}}</option>
+      <option value="alwaysShow" {{#if alwaysShow}}selected{{/if}}>{{localize "apo.alwaysVisible"}}</option>
+    </select>
+
   </div>
   <div class="form-group" >
     <label>{{localize "apo.hideOverlay"}}</label>  
     <input type="checkbox" name="hideOverlay" {{#if hideOverlay}}checked{{/if}}>
-  </div>
-  <div class="form-group" >
-    <label>{{localize "apo.alwaysVisible"}}</label>  
-    <input type="checkbox" name="alwaysShow" {{#if alwaysShow}}checked{{/if}}>
   </div>
     <div class="form-group" >
     <label>{{localize "apo.hasBackground"}}</label>  
