@@ -282,6 +282,7 @@ Hooks.on("hoverNote", async (note, hoverIn) => {
 });
 
 Hooks.on("renderNoteConfig", async (app, html, data) => {
+
   if (app.id !== "note-palette") {
     const template = "modules/advance-map-pin/templates/advance-pin-option.hbs";
     const note = app.document;
@@ -366,8 +367,8 @@ Hooks.on("renderNoteConfig", async (app, html, data) => {
       template,
       templateData,
     );
-
-    const fieldsets = html.querySelectorAll("fieldset");
+    const mainbody = html.querySelector(".form-body.standard-form.scrollable")
+    const fieldsets = mainbody.querySelectorAll("fieldset");
 
     if (!fieldsets.length) return;
 
