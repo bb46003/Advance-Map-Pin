@@ -36,6 +36,9 @@ Hooks.once("init", function () {
   Object.defineProperty(foundry.canvas.placeables.Note.prototype, "isVisible", {
     get: function () {
       const icon = this.document?._object?.children?.[0];
+      let baseVisible = original2.get.call(this);
+      const isNote = this.objectId
+      if(isNote.includes("Note")){
       if (icon) {
         const hasBackground =
           !this.document.getFlag(MODULE_ID, "hasBackground") ?? false;
@@ -43,10 +46,14 @@ Hooks.once("init", function () {
         icon.bg.alpha = hasBackground ? 0.4 : 0;
         icon.border.alpha = hasBackground ? 1 : 0;
       }
-      const baseVisible = original2.get.call(this);
+      
+
       const useTokenVision = canvas.scene?.tokenVision ?? false;
-      const user = game.user;
+      let  visibleToToken = true;
       let tokens = [];
+      if(useTokenVision){
+      const user = game.user;
+      
 
       if (user.isGM) {
         const token =
@@ -57,12 +64,13 @@ Hooks.once("init", function () {
       }
 
       const point = { x: this.x, y: this.y };
-      const visibleToToken = tokens.some((token) =>
+      visibleToToken = tokens.some((token) =>
         canvas.visibility.testVisibility(point, {
           object: token,
           tolerance: 2,
         }),
       );
+    }
 
       const showNotConnectedPin = game.settings.get(
         MODULE_ID,
@@ -72,16 +80,24 @@ Hooks.once("init", function () {
         const userId = game.user.id;
         const users = this.document?.flags?.[MODULE_ID]?.users;
         if (users?.[userId] === true && showNotConnectedPin) {
-          return false;
+          baseVisible = false;
         } else if (users?.[userId] === false && showNotConnectedPin) {
-          return true;
+          baseVisible = true;
         } else if (users?.[userId] === true && !showNotConnectedPin) {
-          return true;
+          baseVisible = true;
         } else if (users?.[userId] === false && !showNotConnectedPin) {
-          return false;
+          baseVisible =  false;
         }
       }
-      return baseVisible;
+ 
+      let finalVisibility = (baseVisible&&visibleToToken)
+      if(game.user.isGM && tokens.length === 0){
+        finalVisibility = true
+      }
+      return finalVisibility
+      }else{
+        return baseVisible
+      }
     },
   });
 
