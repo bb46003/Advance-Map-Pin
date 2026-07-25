@@ -93,6 +93,20 @@
     </select>
 
   </div>
+   <div class='form-group'>
+    <label>{{localize "apo.scaleWithZomm"}}</label>
+    <input name="scaleZoom" type="checkbox" {{#if scaleZomm}}checked{{/if}}/>
+    <div class="zoomFont flexcol">
+      <div class = "flexrow">
+        <label>{{localize "apo.minZoomFont"}}</label>
+        <input type="number" name="minZoomFont" min="10" value={{minFont}} />
+      </div>
+      <div class = "flexrow">
+        <label>{{localize "apo.maxZoomFont"}}</label>
+        <input type="number" name="maxZoomFont" min="60" value={{maxFont}} />
+      </div>
+    </div>
+   </div>
   <div class='form-group'>
     <label>{{localize 'apo.hideOverlay'}}</label>
      

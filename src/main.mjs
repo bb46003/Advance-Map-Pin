@@ -177,6 +177,7 @@ Hooks.on('drawNote', (note) => {
       const pageName = note?.document?.page?.name;
       const label = note.document.text;
       const gmlabel = apoFlags?.gmLabel;
+
       if (label === '') {
         if (pageName) {
           note.children[1]._text = pageName;
@@ -186,14 +187,34 @@ Hooks.on('drawNote', (note) => {
       } else {
         note.children[1]._text = label;
       }
+
       if (game.user.isGM && gmlabel !== '' && gmlabel) {
         note.children[1]._text = gmlabel;
       }
+
       note.hover = true;
     }
   }
+  const text = note.children.find((c) => c instanceof foundry.canvas.containers.PreciseText);
+  const scaleZoom = apoFlags?.scaleZoom ?? false;
+  const minFont = apoFlags?.minFont;
+  const maxFont = apoFlags?.maxFont;
+  if (text && scaleZoom) {
+    updateNoteTextScale(text, minFont, maxFont);
+  }
 });
-
+Hooks.on('canvasPan', () => {
+  for (const note of canvas.notes.placeables) {
+    const text = note.children.find((c) => c instanceof foundry.canvas.containers.PreciseText);
+    const apoFlags = note.document.flags?.[MODULE_ID];
+    const scaleZoom = apoFlags?.scaleZoom ?? false;
+    const minFont = apoFlags?.minFont;
+    const maxFont = apoFlags?.maxFont;
+    if (text && scaleZoom) {
+      updateNoteTextScale(text, minFont, maxFont);
+    }
+  }
+});
 let hoverRemoveTimeout = null;
 
 Hooks.on('hoverNote', async (note, hoverIn) => {
@@ -422,6 +443,9 @@ Hooks.on('renderNoteConfig', async (app, html, data) => {
       isGM: game.user.isGM,
       gmLabel: apoFlags?.gmLabel ?? '',
       hoverTime: apoFlags?.hoverTime ?? 100,
+      scaleZomm: apoFlags?.scaleZoom ?? false,
+      minFont: apoFlags?.minFont ?? 10,
+      maxFont: apoFlags?.maxFont ?? 60,
     };
 
     const content = await foundry.applications.handlebars.renderTemplate(template, templateData);
@@ -480,6 +504,16 @@ Hooks.on('renderNoteConfig', async (app, html, data) => {
         });
       });
     }
+
+    const scaleZoom = apo.querySelector('input[name=scaleZoom]');
+    if (scaleZoom) {
+      scaleZoom.addEventListener('change', () => {
+        const zoomFont = apo.querySelector('.zoomFont');
+        if (!zoomFont) return;
+        const isChecked = scaleZoom.checked;
+        zoomFont.hidden = !isChecked;
+      });
+    }
   }
 });
 
@@ -523,6 +557,10 @@ async function saveFlags(apo, textValue, note) {
   const pixelOffsetYInput = apo.querySelector('input[name=pixelOffsetY]');
   const hoverTimeInput = apo.querySelector('input[name=hoverTime]');
   const backgroundColorInput = apo.querySelector('[name=backgroundColor]');
+  const scalzeZoom = apo.querySelector('input[name=scaleZoom]');
+  const zoomFont = apo.querySelector('.zoomFont');
+  const minFontSizeInput = zoomFont.querySelector('input[name=minZoomFont]');
+  const maxFontsizeInput = zoomFont.querySelector('input[name=maxZoomFont]');
 
   const imgValue = imgField?.value ?? '';
 
@@ -537,7 +575,8 @@ async function saveFlags(apo, textValue, note) {
   const backgroundColor = backgroundColorInput?.value ?? '#ffffff';
   const hoverTime = hoverTimeInput.value;
   const userCheckboxes = apo.querySelectorAll('.apo-user-checkbox');
-
+  const maxFont = Number(maxFontsizeInput?.value) ?? 250;
+  const minFont = Number(minFontSizeInput?.value) ?? 10;
   const usersState = {};
   let allSelected = false;
 
@@ -573,6 +612,10 @@ async function saveFlags(apo, textValue, note) {
   await note.setFlag(MODULE_ID, 'hideOverlay', hideOverlayValue);
   await note.setFlag(MODULE_ID, 'defaultLabel', defaultLabel);
   await note.setFlag(MODULE_ID, 'hoverTime', hoverTime);
+  await note.setFlag(MODULE_ID, 'scaleZoom', scalzeZoom.checked);
+  await note.setFlag(MODULE_ID, 'minFont', minFont);
+  await note.setFlag(MODULE_ID, 'maxFont', maxFont);
+
   if (game.user.isGM) {
     const gmLabel = apo.querySelector('input[name=gmLabel]');
     const gmLabelText = gmLabel?.value;
@@ -610,4 +653,23 @@ export class SocketHandler {
   emit(data) {
     return game.socket.emit(this.identifier, data);
   }
+}
+function updateNoteTextScale(text, minFont, maxFont) {
+  const zoom = canvas.stage.scale.x;
+  const maxZoom = canvas.dimensions.scale.max;
+  const minZoom = canvas.dimensions.scale.min;
+  if (!text) return;
+  const threshold = 1.1;
+  const exponent = 0.45;
+  let scalefactor;
+  if (zoom <= threshold) {
+    const t = (zoom - minZoom) / (threshold - minZoom);
+    scalefactor = Math.pow(t, exponent) * 0.75;
+  } else {
+    const t = (zoom - threshold) / (maxZoom - threshold);
+    scalefactor = 0.75 + Math.pow(t, 2) * 0.25;
+  }
+  const newSize = maxFont - (maxFont - minFont) * scalefactor;
+  text.style.fontSize = newSize;
+  text.updateText();
 }

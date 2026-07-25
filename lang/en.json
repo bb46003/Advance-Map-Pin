@@ -34,6 +34,9 @@
     "labelBehaviour": "Map Not Label Visibility",
     "foundryDefault": "Foundry default",
     "GMLabel": "Note label for GM",
-    "hoverTimeDelay": "How long Custom Overly stay when mouse is not hover on it in miliseconds"
+    "hoverTimeDelay": "How long Custom Overly stay when mouse is not hover on it in miliseconds",
+    "scaleWithZomm": "Scale Label Font with Canvas Zoom",
+    "minZoomFont": "Minimum font size",
+    "maxZoomFont": "Maximum font size"
   }
 }

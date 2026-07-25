@@ -25,6 +25,9 @@
       }
     }
   }
+  .zoomFont {
+    gap: 5px;
+  }
 }
 .apo-hover {
   background: white;
