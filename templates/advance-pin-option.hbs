@@ -1,127 +1,126 @@
-<fieldset class="apo">
-  <legend>{{localize "apo.header"}}</legend>
+<fieldset class='apo'>
+  <legend>{{localize 'apo.header'}}</legend>
   {{#if isGM}}
-    <div class="form-group">
-      <label>{{localize "apo.GMLabel"}}</label>
-      <input type="text" name="gmLabel" value="{{gmLabel}}"></input>
+    <div class='form-group'>
+      <label>{{localize 'apo.GMLabel'}}</label>
+      <input type='text' name='gmLabel' value='{{gmLabel}}' />
     </div>
   {{/if}}
-  <div class="form-group">
-    <div class="enrich">
+  <div class='form-group'>
+    <div class='enrich'>
       <label>{{localize text.field.label}}</label>
-      {{formInput
-        text.field
-        value=text.value
-        enriched=text.enriched
-        toggled="true"
-      }}
+      {{formInput text.field value=text.value enriched=text.enriched toggled='true'}}
     </div>
   </div>
-  <div class="form-group">
-    <label>{{localize "apo.useImg"}}</label>
-    <div class="form-fields flexrow">
-      <input type="text" name="flags.advance-map-pin.img" value="{{img}}" />
+  <div class='form-group'>
+    <label>{{localize 'apo.useImg'}}</label>
+    <div class='form-fields flexrow'>
+      <input type='text' name='flags.advance-map-pin.img' value='{{img}}' />
       <button
-        type="button"
-        class="file-picker"
-        data-type="image"
-        data-target="flags.advance-map-pin.img"
+        type='button'
+        class='file-picker'
+        data-type='image'
+        data-target='flags.advance-map-pin.img'
       >
-        <i class="fas fa-folder-open"></i>
+        <i class='fas fa-folder-open'></i>
       </button>
     </div>
   </div>
-  <div class="form-group">
-    <label>{{localize "apo.colorOFBackground"}}</label>
-    <div class="form-fields">
-      <color-picker
-        name="backgroundColor"
-        value="{{backgroundColor}}"
-        placeholder="#ffffff"
-      >
-        <input type="text" placeholder="#ffffff" />
-        <input type="color" />
+  <div class='form-group'>
+    <label>{{localize 'apo.colorOFBackground'}}</label>
+    <div class='form-fields'>
+      <color-picker name='backgroundColor' value='{{backgroundColor}}' placeholder='#ffffff'>
+        <input type='text' placeholder='#ffffff' />
+        <input type='color' />
       </color-picker>
     </div>
   </div>
-  <div class="form-group">
-    <label>{{localize "apo.position"}}</label>
-    <select class="direction" name="direction">
-      <option value="top" {{selectedDirection "top" direction}}>{{localize
-          "apo.direction.top"
+  <div class='form-group'>
+    <label>{{localize 'apo.position'}}</label>
+    <select class='direction' name='direction'>
+      <option value='top' {{selectedDirection 'top' direction}}>{{localize
+          'apo.direction.top'
         }}</option>
-      <option value="top-right" {{selectedDirection "top-right" direction}}>{{localize
-          "apo.direction.topRight"
+      <option value='top-right' {{selectedDirection 'top-right' direction}}>{{localize
+          'apo.direction.topRight'
         }}</option>
-      <option value="right" {{selectedDirection "right" direction}}>{{localize
-          "apo.direction.right"
+      <option value='right' {{selectedDirection 'right' direction}}>{{localize
+          'apo.direction.right'
         }}</option>
-      <option
-        value="bottom-right"
-        {{selectedDirection "bottom-right" direction}}
-      >{{localize "apo.direction.bottomRight"}}</option>
-      <option value="bottom" {{selectedDirection "bottom" direction}}>{{localize
-          "apo.direction.bottom"
+      <option value='bottom-right' {{selectedDirection 'bottom-right' direction}}>{{localize
+          'apo.direction.bottomRight'
         }}</option>
-      <option
-        value="bottom-left"
-        {{selectedDirection "bottom-left" direction}}
-      >{{localize "apo.direction.bottomLeft"}}</option>
-      <option value="left" {{selectedDirection "left" direction}}>{{localize
-          "apo.direction.left"
+      <option value='bottom' {{selectedDirection 'bottom' direction}}>{{localize
+          'apo.direction.bottom'
         }}</option>
-      <option value="top-left" {{selectedDirection "top-left" direction}}>{{localize
-          "apo.direction.topLeft"
+      <option value='bottom-left' {{selectedDirection 'bottom-left' direction}}>{{localize
+          'apo.direction.bottomLeft'
+        }}</option>
+      <option value='left' {{selectedDirection 'left' direction}}>{{localize
+          'apo.direction.left'
+        }}</option>
+      <option value='top-left' {{selectedDirection 'top-left' direction}}>{{localize
+          'apo.direction.topLeft'
         }}</option>
     </select>
   </div>
-  <div class="form-group">
-    <label>{{localize "apo.pixelOffset"}}</label>
-    <div class="flexcol">
-    <div class="flexcol">
-      <label>{{localize "apo.pixelOffsetX"}}</label>
-    <input type="number" min="0" name="pixelOffsetX" value="{{pixelOffsetX}}" />
+  <div class='form-group'>
+    <label>{{localize 'apo.pixelOffset'}}</label>
+    <div class='flexcol'>
+      <div class='flexcol'>
+        <label>{{localize 'apo.pixelOffsetX'}}</label>
+        <input type='number' min='0' name='pixelOffsetX' value='{{pixelOffsetX}}' />
 
-    </div>
-        <div class="flexcol">
-      <label>{{localize "apo.pixelOffsetY"}}</label>
-    <input type="number" min="0" name="pixelOffsetY" value="{{pixelOffsetY}}" />
+      </div>
+      <div class='flexcol'>
+        <label>{{localize 'apo.pixelOffsetY'}}</label>
+        <input type='number' min='0' name='pixelOffsetY' value='{{pixelOffsetY}}' />
 
-    </div>
+      </div>
     </div>
   </div>
-<div class="form-group" >
-    <label>{{localize "apo.labelBehaviour"}}</label>  
-    <select data-type="label">
-      <option value="default" {{#if default}}selected{{/if}}>{{localize "apo.foundryDefault"}}</option>"
-      <option value="hideLabel" {{#if hideLabel}}selected{{/if}}>{{localize "apo.hideLabel"}}</option>
-      <option value="alwaysShow" {{#if alwaysShow}}selected{{/if}}>{{localize "apo.alwaysVisible"}}</option>
+  <div class='form-group'>
+    <label>{{localize "apo.hoverTimeDelay"}}</label>
+    <input type="number" name="hoverTime" min="100" value={{hoverTime}} />
+  </div>
+  <div class='form-group'>
+    <label>{{localize 'apo.labelBehaviour'}}</label>
+    <select data-type='label'>
+       
+      <option value="default" {{#if default}} selected {{/if}} >{{localize "apo.foundryDefault"}}</option>"
+      <option value="hideLabel" {{#if hideLabel}} selected {{/if}} >{{localize "apo.hideLabel"}}</option>
+      <option value="alwaysShow" {{#if alwaysShow}} selected {{/if}} >{{localize "apo.alwaysVisible"}}</option>
     </select>
 
   </div>
-  <div class="form-group" >
-    <label>{{localize "apo.hideOverlay"}}</label>  
+  <div class='form-group'>
+    <label>{{localize 'apo.hideOverlay'}}</label>
+     
     <input type="checkbox" name="hideOverlay" {{#if hideOverlay}}checked{{/if}}>
+    
   </div>
     <div class="form-group" >
     <label>{{localize "apo.hasBackground"}}</label>  
-    <input type="checkbox" name="hasBackground" {{#if hasBackground}}checked{{/if}}>
+    
+    <input type="checkbox" name="hasBackground" {{#if hasBackground}}checked{{/if}} >
   </div>
   {{#if noOtherUser}}
-  <div class="form-group" >
-    {{#if showToAll}}
-    <label>{{localize "apo.hideFromUser"}}</label>
-    {{else}}
-      <label>{{localize "apo.showtouser"}}</label>
-    {{/if}}
-    <div class="flexcol">
-    {{#each users as |user index|}}
-      <div class="flexrow users">
-        <label class="user">{{user.name}}</label>
+    <div class='form-group'>
+      {{#if showToAll}}
+        <label>{{localize 'apo.hideFromUser'}}</label>
+      {{else}}
+        <label>{{localize 'apo.showtouser'}}</label>
+      {{/if}}
+      <div class='flexcol'>
+        {{#each users as |user index|}}
+          <div class='flexrow users'>
+            <label class='user'>{{user.name}}</label>
+            
         <input class="apo-user-checkbox" type="checkbox" data-id="{{user.id}}" {{#if (lookup @root.allowUsers user.id)}}checked{{/if}}></input>
+
+          </div>
+        {{/each}}
       </div>
-    {{/each}}
     </div>
-  </div>
   {{/if}}
 </fieldset>

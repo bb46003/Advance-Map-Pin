@@ -33,6 +33,7 @@
     "allUsers": "All Users",
     "labelBehaviour": "Map Not Label Visibility",
     "foundryDefault": "Foundry default",
-    "GMLabel": "Note label for GM"
+    "GMLabel": "Note label for GM",
+    "hoverTimeDelay": "How long Custom Overly stay when mouse is not hover on it in miliseconds"
   }
 }

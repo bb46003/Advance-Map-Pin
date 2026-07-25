@@ -13,4 +13,3 @@ This module adds new features to Map Pins, such as:
 
 Pin Configuation<br>
 <img width="586" height="886" alt="image" src="https://github.com/user-attachments/assets/32e54b08-9e5c-4e28-8163-32e70484d24a" />
-
