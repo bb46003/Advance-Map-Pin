@@ -9,7 +9,11 @@
       "allPinVisible": "Map Note Label always visible",
       "allPinVisibleHint": "Name of each Map Note will be always visible with out need for hovering.",
       "showNotConectedPin": "Always show Map Pin not connected to Journal",
-      "showNotConectedPinHint": "All Map Pins not connectet to Journal will be visible for all Users"
+      "showNotConectedPinHint": "All Map Pins not connectet to Journal will be visible for all Users",
+      "maxWidthCustomOverlay": "Restrict maximum width of Custom Overlay",
+      "maxWidthCustomOverlayHint": "Will use defnie by user maximum width for all Custom Overlay at Map Pin",
+      "maxWidthCustomOverlayValue": "Maximum width in pix for all Custom Overlay",
+      "maxWidthCustomOverlayValueHint": "Set maimum width of Custom Overlay in pix value, minimum 100Px"
     },
     "alwaysVisible": "Map Note Label always visible",
     "hasBackground": "Remove Pin border and background",

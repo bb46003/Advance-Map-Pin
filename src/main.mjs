@@ -25,6 +25,25 @@ Hooks.once('init', function () {
       window.location.reload();
     }, 100),
   });
+  game.settings.register(MODULE_ID, 'useWidthCustomOverlay', {
+    name: game.i18n.localize('apo.settings.maxWidthCustomOverlay'),
+    hint: game.i18n.localize('apo.settings.maxWidthCustomOverlayHint'),
+    scope: 'world',
+    type: Boolean,
+    default: false,
+    config: true,
+  });
+  game.settings.register(MODULE_ID, 'maxWidthCustomOverlay', {
+    name: game.i18n.localize('apo.settings.maxWidthCustomOverlayValue'),
+    hint: game.i18n.localize('apo.settings.maxWidthCustomOverlayValueHint'),
+    scope: 'world',
+    type: Number,
+    default: false,
+    config: true,
+    default: 100,
+    range: { min: 100, max: 5000, step: 1 },
+  });
+
   registerHandlebarsHelpers();
   const myPackage = game.modules.get(MODULE_ID);
   myPackage.socketHandler = new SocketHandler();
@@ -163,7 +182,21 @@ Hooks.once('init', function () {
     if (updateLegend) ui.placeables.hoverEntry(this, true);
   };
 });
-
+Hooks.on('renderSettingsConfig', (app, html) => {
+  const checkbox = html.querySelector(`[name="${MODULE_ID}.useWidthCustomOverlay"]`);
+  const rangeInput = html.querySelector(`[name="${MODULE_ID}.maxWidthCustomOverlay"]`);
+  if (!checkbox || !rangeInput) return;
+  const rangeGroup = rangeInput.closest('.form-group');
+  function updateVisibility() {
+    if (checkbox.checked) {
+      rangeGroup.style.display = '';
+    } else {
+      rangeGroup.style.display = 'none';
+    }
+  }
+  updateVisibility();
+  checkbox.addEventListener('change', updateVisibility);
+});
 Hooks.on('drawNote', (note) => {
   const showAll = game.settings.get(MODULE_ID, 'allPinVisible');
   const apoFlags = note?.document?.flags?.[MODULE_ID];
@@ -352,7 +385,33 @@ Hooks.on('hoverNote', async (note, hoverIn) => {
 
   hoverElement.style.background = backgroundColor;
   hoverElement.style.color = textColor;
+  const maxWidthSetting = game.settings.get(MODULE_ID, 'useWidthCustomOverlay');
+  if (maxWidthSetting) {
+    const maxWidthValue = game.settings.get(MODULE_ID, 'maxWidthCustomOverlay');
+    hoverElement.style.maxWidth = `${maxWidthValue}px`;
+    hoverElement.style.boxSizing = 'border-box';
+    hoverElement.style.overflow = 'hidden';
 
+    hoverElement.querySelectorAll('*').forEach((el) => {
+      el.style.maxWidth = '100%';
+      el.style.boxSizing = 'border-box';
+    });
+
+    hoverElement.querySelectorAll('img').forEach((img) => {
+      img.style.maxWidth = '100%';
+      img.style.height = 'auto';
+      img.style.display = 'block';
+    });
+
+    hoverElement.style.wordBreak = 'break-word';
+    hoverElement.style.overflowWrap = 'anywhere';
+
+    hoverElement.querySelectorAll('table').forEach((table) => {
+      table.style.width = '100%';
+      table.style.display = 'block';
+      table.style.overflowX = 'auto';
+    });
+  }
   document.getElementById('hud').appendChild(hoverElement);
 
   const hasBackground = note.document.getFlag(MODULE_ID, 'hasBackground') ?? false;
