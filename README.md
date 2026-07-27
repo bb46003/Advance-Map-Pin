@@ -1,7 +1,5 @@
 <h1>Advance-Map-Pin</h1>
-
 <p>This module adds new features to Map Pins, such as:</p>
-
 <ul>
 <li>Pin labels are always visible without hovering</li>
 <li>Add a custom overlay with your own text and/or image</li>
@@ -16,7 +14,4 @@
 <li>Set how long Custom Overlays remain visible after moving the mouse away from the Map Pin or Custom Overlay</li>
 <li>Limit the maximum width of all Custom Overlays using a world setting available only to Game Masters</li>
 </ul>
-
-<p><br />Pin Configuration<br />
-<img src="https://github.com/user-attachments/assets/32e54b08-9e5c-4e28-8163-32e70484d24a" alt="image" width="586" height="886" />
-</p>
+<p><br />Pin Configuration<br /><img src="https://raw.githubusercontent.com/bb46003/Advance-Map-Pin/refs/heads/main/Map%20Pin%20Config.jpg" alt="image" width="586" height="886" /></p>
