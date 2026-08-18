@@ -364,7 +364,7 @@ Hooks.on('hoverNote', async (note, hoverIn) => {
 
   let textColor;
 
-  if (!backgroundColor) {
+  if (backgroundColor === "white" ||  backgroundColor=== "black") {
     switch (theme) {
       case 'light':
         backgroundColor = 'white';
