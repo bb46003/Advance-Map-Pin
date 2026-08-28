@@ -13,5 +13,6 @@
 <li>Configure minimum and maximum font sizes for Map Pin labels depending on the current zoom level</li>
 <li>Set how long Custom Overlays remain visible after moving the mouse away from the Map Pin or Custom Overlay</li>
 <li>Limit the maximum width of all Custom Overlays using a world setting available only to Game Masters</li>
+<li>Add an option for non-gridless scenes to set the distance at which a given Map Pin starts to become visible, 0 means not to use this option.</li>
 </ul>
 <p><br />Pin Configuration<br /><img src="https://raw.githubusercontent.com/bb46003/Advance-Map-Pin/refs/heads/main/Map%20Pin%20Config.jpg" alt="image" width="586" height="886" /></p>
