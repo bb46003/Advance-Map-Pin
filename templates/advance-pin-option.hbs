@@ -137,4 +137,10 @@
       </div>
     </div>
   {{/if}}
+  {{#if isGridless}}
+    <div class="form-group">
+      <label>{{localize 'apo.distanceToPin'}} {{gridUnit}}</label>
+      <input type="number" name="distance" min="0" value={{distance}}>
+    </div>
+    {{/if}}
 </fieldset>

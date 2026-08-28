@@ -41,6 +41,7 @@
     "hoverTimeDelay": "How long Custom Overly stay when mouse is not hover on it in miliseconds",
     "scaleWithZomm": "Scale Label Font with Canvas Zoom",
     "minZoomFont": "Minimum font size",
-    "maxZoomFont": "Maximum font size"
+    "maxZoomFont": "Maximum font size",
+    "distanceToPin": "Distanse to Pin on witch it will be visible for token, in grid units of"
   }
 }

@@ -68,16 +68,14 @@ Hooks.once('init', function () {
         const useTokenVision = canvas.scene?.tokenVision ?? false;
         let visibleToToken = true;
         let tokens = [];
-        if (useTokenVision) {
-          const user = game.user;
-
+        const user = game.user;
           if (user.isGM) {
             const token = canvas.tokens.controlled[0] ?? user.character?.getActiveTokens()?.[0];
             if (token) tokens = [token];
           } else {
             tokens = canvas.tokens.placeables.filter((t) => t.actor?.isOwner);
           }
-
+        if (useTokenVision) {
           const point = { x: this.x, y: this.y };
           visibleToToken = tokens.some((token) =>
             canvas.visibility.testVisibility(point, {
@@ -106,6 +104,33 @@ Hooks.once('init', function () {
         if (game.user.isGM && tokens.length === 0) {
           finalVisibility = true;
         }
+    const distance = this.document.getFlag(MODULE_ID, "distance");
+
+if (distance !== 0 && finalVisibility) {
+  const notePosition = {
+    x: this.document.x,
+    y: this.document.y,
+  };
+
+  const tokenIsClose = tokens.some((token) => {
+    const tokenPosition = {
+      x: token.center.x,
+      y: token.center.y,
+    };
+
+    const dx = tokenPosition.x - notePosition.x;
+    const dy = tokenPosition.y - notePosition.y;
+    const gridSize = canvas.grid.size
+    const gridUnit = canvas.grid.distance
+    const tokenDistance = Math.hypot(dx, dy)/(gridSize/gridUnit);
+
+    return tokenDistance > distance;
+  });
+
+  if (tokenIsClose) {
+    finalVisibility = false;
+  }
+}
         return finalVisibility;
       } else {
         return baseVisible;
@@ -474,7 +499,8 @@ Hooks.on('renderNoteConfig', async (app, html, data) => {
     if (!apoFlags?.alwaysShow && !apoFlags?.hideLabel && !showToAll) {
       defaultLabel = true;
     }
-
+    const gridUnit = game.canvas.grid.units;
+    const isGridless = !game.canvas.grid.isGridless;
     const templateData = {
       text: {
         value: rawText,
@@ -505,6 +531,9 @@ Hooks.on('renderNoteConfig', async (app, html, data) => {
       scaleZomm: apoFlags?.scaleZoom ?? false,
       minFont: apoFlags?.minFont ?? 10,
       maxFont: apoFlags?.maxFont ?? 60,
+      gridUnit: gridUnit,
+      distance: apoFlags?.distance ?? 0,
+      isGridless: isGridless
     };
 
     const content = await foundry.applications.handlebars.renderTemplate(template, templateData);
@@ -620,7 +649,7 @@ async function saveFlags(apo, textValue, note) {
   const zoomFont = apo.querySelector('.zoomFont');
   const minFontSizeInput = zoomFont.querySelector('input[name=minZoomFont]');
   const maxFontsizeInput = zoomFont.querySelector('input[name=maxZoomFont]');
-
+  const distanceInput = apo.querySelector('input[name=distance]');
   const imgValue = imgField?.value ?? '';
 
   const hideLabelValue = label.value === 'hideLabel';
@@ -637,6 +666,7 @@ async function saveFlags(apo, textValue, note) {
   const maxFont = Number(maxFontsizeInput?.value) ?? 250;
   const minFont = Number(minFontSizeInput?.value) ?? 10;
   const usersState = {};
+  const distance = Number(distanceInput?.value) ?? 0;
   let allSelected = false;
 
   userCheckboxes.forEach((input) => {
@@ -674,6 +704,7 @@ async function saveFlags(apo, textValue, note) {
   await note.setFlag(MODULE_ID, 'scaleZoom', scalzeZoom.checked);
   await note.setFlag(MODULE_ID, 'minFont', minFont);
   await note.setFlag(MODULE_ID, 'maxFont', maxFont);
+  await note.setFlag(MODULE_ID, "distance", distance);
 
   if (game.user.isGM) {
     const gmLabel = apo.querySelector('input[name=gmLabel]');
