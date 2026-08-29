@@ -157,6 +157,8 @@ if (distance !== 0 && finalVisibility) {
     event,
     { hoverOutOthers = false, updateLegend = true } = {}
   ) {
+    const isNote = this.objectId;
+    if (isNote.includes('Note')) {
     const apoFlags = this.document?.flags?.[MODULE_ID];
 
     const hideOverley = apoFlags?.hideOverlay ?? false;
@@ -186,11 +188,8 @@ if (distance !== 0 && finalVisibility) {
       Hooks.callAll(`hover${this.constructor.embeddedName}`, this, this.hover);
       return;
     }
-
     if (this.hover) return;
-    if (event.buttons & 0x03) return; // Returning if hovering is happening with pressed left or right button
-
-    // Handle the event
+    if (event.buttons & 0x03) return; 
     const layer = this.layer;
     layer.hover = this;
     if (hoverOutOthers) {
@@ -199,13 +198,12 @@ if (distance !== 0 && finalVisibility) {
       }
     }
     this.hover = true;
-
-    // Set render flags
     this.renderFlags.set({ refreshState: true });
     Hooks.callAll(`hover${this.constructor.embeddedName}`, this, this.hover);
 
     if (updateLegend) ui.placeables.hoverEntry(this, true);
   };
+}
 });
 Hooks.on('renderSettingsConfig', (app, html) => {
   const checkbox = html.querySelector(`[name="${MODULE_ID}.useWidthCustomOverlay"]`);
