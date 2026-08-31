@@ -42,6 +42,7 @@
     "scaleWithZomm": "Scale Label Font with Canvas Zoom",
     "minZoomFont": "Minimum font size",
     "maxZoomFont": "Maximum font size",
-    "distanceToPin": "Distanse to Pin on witch it will be visible for token, in grid units of"
+    "distanceToPin": "Distanse to Pin on witch it will be visible for token, in grid units of",
+    "hideIcon": "Hide Icon of Pin for Players, for GM Icon will be semi transparent"
   }
 }

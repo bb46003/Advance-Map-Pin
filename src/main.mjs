@@ -147,10 +147,19 @@ if (distance !== 0 && finalVisibility) {
     const icon = new foundry.canvas.containers.ControlIcon(iconData);
 
     const hasBackground = !this.document.getFlag(MODULE_ID, 'hasBackground') ?? true;
-
+    
     icon.bg.alpha = hasBackground ? 0.4 : 0;
     icon.border.alpha = hasBackground ? 1 : 0;
+    const isGM = game.user.isGM;
+    const hideIcon = this.document.getFlag(MODULE_ID, 'hideIcon') ?? false;
 
+    if(isGM && hideIcon){
+      icon.alpha = 0.1;
+    }else if(hideIcon){
+      icon.alpha = 0
+    }else{
+      icon.alpha = 1
+    }
     return icon;
   };
   foundry.canvas.placeables.PlaceableObject.prototype._onHoverIn = function (
@@ -531,7 +540,8 @@ Hooks.on('renderNoteConfig', async (app, html, data) => {
       maxFont: apoFlags?.maxFont ?? 60,
       gridUnit: gridUnit,
       distance: apoFlags?.distance ?? 0,
-      isGridless: isGridless
+      isGridless: isGridless,
+      hideIcon: apoFlags?.hideIcon
     };
 
     const content = await foundry.applications.handlebars.renderTemplate(template, templateData);
@@ -649,7 +659,7 @@ async function saveFlags(apo, textValue, note) {
   const maxFontsizeInput = zoomFont.querySelector('input[name=maxZoomFont]');
   const distanceInput = apo.querySelector('input[name=distance]');
   const imgValue = imgField?.value ?? '';
-
+  const hideIconInput = apo.querySelector('input[name=hideIcon]')
   const hideLabelValue = label.value === 'hideLabel';
   const hideOverlayValue = hideOverlay?.checked ?? false;
   const alwaysShowValue = label.value === 'alwaysShow';
@@ -665,6 +675,7 @@ async function saveFlags(apo, textValue, note) {
   const minFont = Number(minFontSizeInput?.value) ?? 10;
   const usersState = {};
   const distance = Number(distanceInput?.value) ?? 0;
+  const hideIcon = hideIconInput?.checked ?? false;
   let allSelected = false;
 
   userCheckboxes.forEach((input) => {
@@ -703,6 +714,7 @@ async function saveFlags(apo, textValue, note) {
   await note.setFlag(MODULE_ID, 'minFont', minFont);
   await note.setFlag(MODULE_ID, 'maxFont', maxFont);
   await note.setFlag(MODULE_ID, "distance", distance);
+  await note.setFlag(MODULE_ID, "hideIcon", hideIcon)
 
   if (game.user.isGM) {
     const gmLabel = apo.querySelector('input[name=gmLabel]');
