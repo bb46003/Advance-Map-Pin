@@ -162,16 +162,26 @@ if (distance !== 0 && finalVisibility) {
     }
     return icon;
   };
-  foundry.canvas.placeables.PlaceableObject.prototype._onHoverIn = function (
-    event,
-    { hoverOutOthers = false, updateLegend = true } = {}
-  ) {
-    const isNote = this.objectId;
-    if (isNote.includes('Note')) {
+const originalOnHoverIn =
+  foundry.canvas.placeables.PlaceableObject.prototype._onHoverIn;
+
+foundry.canvas.placeables.PlaceableObject.prototype._onHoverIn = function (
+  event,
+  { hoverOutOthers = false, updateLegend = true } = {}
+) {
+    originalOnHoverIn.call(this, event, {
+    hoverOutOthers,
+    updateLegend
+  });
+ 
+  const isNote = this.objectId;
+
+  if (isNote?.includes('Note')) {
     const apoFlags = this.document?.flags?.[MODULE_ID];
 
-    const hideOverley = apoFlags?.hideOverlay ?? false;
+    const hideOverlay = apoFlags?.hideOverlay ?? false;
     const note = this;
+
     if (apoFlags?.hideLabel) {
       event.preventDefault();
       note.children[1]._text = '';
@@ -179,7 +189,8 @@ if (distance !== 0 && finalVisibility) {
       const journalName = note?.entry?.name;
       const pageName = note?.document?.page?.name;
       const label = note.document.text;
-      const gmlabel = apoFlags?.gmLabel;
+      const gmLabel = apoFlags?.gmLabel;
+
       if (label === '') {
         if (pageName) {
           note.children[1]._text = pageName;
@@ -189,30 +200,13 @@ if (distance !== 0 && finalVisibility) {
       } else {
         note.children[1]._text = label;
       }
-      if (game.user.isGM && gmlabel !== '' && gmlabel) {
-        note.children[1]._text = gmlabel;
-      }
-    }
-    if (this.hover && (!hideOverley || game.user.isGM)) {
-      Hooks.callAll(`hover${this.constructor.embeddedName}`, this, this.hover);
-      return;
-    }
-    if (this.hover) return;
-    if (event.buttons & 0x03) return; 
-    const layer = this.layer;
-    layer.hover = this;
-    if (hoverOutOthers) {
-      for (const o of layer.placeables) {
-        if (o !== this) o._onHoverOut(event);
-      }
-    }
-    this.hover = true;
-    this.renderFlags.set({ refreshState: true });
-    Hooks.callAll(`hover${this.constructor.embeddedName}`, this, this.hover);
 
-    if (updateLegend) ui.placeables.hoverEntry(this, true);
-  };
-}
+      if (game.user.isGM && gmLabel !== '' && gmLabel) {
+        note.children[1]._text = gmLabel;
+      }
+    }
+  }
+};
 });
 Hooks.on('renderSettingsConfig', (app, html) => {
   const checkbox = html.querySelector(`[name="${MODULE_ID}.useWidthCustomOverlay"]`);
