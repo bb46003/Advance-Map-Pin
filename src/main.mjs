@@ -106,7 +106,7 @@ Hooks.once('init', function () {
         }
     const distance = this.document.getFlag(MODULE_ID, "distance");
 
-if (distance !== 0 && finalVisibility) {
+if (distance !== 0 && tokens.length > 0) {
   const notePosition = {
     x: this.document.x,
     y: this.document.y,
@@ -124,12 +124,12 @@ if (distance !== 0 && finalVisibility) {
     const gridUnit = canvas.grid.distance
     const tokenDistance = Math.hypot(dx, dy)/(gridSize/gridUnit);
 
-    return tokenDistance > distance;
+    return tokenDistance <= distance;
   });
 
-  if (tokenIsClose) {
-    finalVisibility = false;
-  }
+  
+    finalVisibility = tokenIsClose;
+  
 }
         return finalVisibility;
       } else {
