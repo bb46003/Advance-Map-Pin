@@ -1,12 +1,12 @@
 const { HTMLField } = foundry.data.fields;
-const MODULE_ID = 'advance-map-pin';
+const MODULE_ID = "advance-map-pin";
 
 let hoverElement = null;
-Hooks.once('init', function () {
-  game.settings.register(MODULE_ID, 'allPinVisible', {
-    name: game.i18n.localize('apo.settings.allPinVisible'),
-    hint: game.i18n.localize('apo.settings.allPinVisibleHint'),
-    scope: 'world',
+Hooks.once("init", function () {
+  game.settings.register(MODULE_ID, "allPinVisible", {
+    name: game.i18n.localize("apo.settings.allPinVisible"),
+    hint: game.i18n.localize("apo.settings.allPinVisibleHint"),
+    scope: "world",
     type: Boolean,
     default: false,
     config: true,
@@ -14,10 +14,10 @@ Hooks.once('init', function () {
       window.location.reload();
     }, 100),
   });
-  game.settings.register(MODULE_ID, 'showNotConectedPin', {
-    name: game.i18n.localize('apo.settings.showNotConectedPin'),
-    hint: game.i18n.localize('apo.settings.showNotConectedPinHint'),
-    scope: 'world',
+  game.settings.register(MODULE_ID, "showNotConectedPin", {
+    name: game.i18n.localize("apo.settings.showNotConectedPin"),
+    hint: game.i18n.localize("apo.settings.showNotConectedPinHint"),
+    scope: "world",
     type: Boolean,
     default: false,
     config: true,
@@ -25,18 +25,18 @@ Hooks.once('init', function () {
       window.location.reload();
     }, 100),
   });
-  game.settings.register(MODULE_ID, 'useWidthCustomOverlay', {
-    name: game.i18n.localize('apo.settings.maxWidthCustomOverlay'),
-    hint: game.i18n.localize('apo.settings.maxWidthCustomOverlayHint'),
-    scope: 'world',
+  game.settings.register(MODULE_ID, "useWidthCustomOverlay", {
+    name: game.i18n.localize("apo.settings.maxWidthCustomOverlay"),
+    hint: game.i18n.localize("apo.settings.maxWidthCustomOverlayHint"),
+    scope: "world",
     type: Boolean,
     default: false,
     config: true,
   });
-  game.settings.register(MODULE_ID, 'maxWidthCustomOverlay', {
-    name: game.i18n.localize('apo.settings.maxWidthCustomOverlayValue'),
-    hint: game.i18n.localize('apo.settings.maxWidthCustomOverlayValueHint'),
-    scope: 'world',
+  game.settings.register(MODULE_ID, "maxWidthCustomOverlay", {
+    name: game.i18n.localize("apo.settings.maxWidthCustomOverlayValue"),
+    hint: game.i18n.localize("apo.settings.maxWidthCustomOverlayValueHint"),
+    scope: "world",
     type: Number,
     default: false,
     config: true,
@@ -49,17 +49,18 @@ Hooks.once('init', function () {
   myPackage.socketHandler = new SocketHandler();
   const original2 = Object.getOwnPropertyDescriptor(
     foundry.canvas.placeables.Note.prototype,
-    'isVisible'
+    "isVisible",
   );
 
-  Object.defineProperty(foundry.canvas.placeables.Note.prototype, 'isVisible', {
+  Object.defineProperty(foundry.canvas.placeables.Note.prototype, "isVisible", {
     get: function () {
       const icon = this.document?._object?.children?.[0];
       let baseVisible = original2.get.call(this);
       const isNote = this.objectId;
-      if (isNote.includes('Note')) {
+      if (isNote.includes("Note")) {
         if (icon) {
-          const hasBackground = !this.document.getFlag(MODULE_ID, 'hasBackground') ?? false;
+          const hasBackground =
+            !this.document.getFlag(MODULE_ID, "hasBackground") ?? false;
 
           icon.bg.alpha = hasBackground ? 0.4 : 0;
           icon.border.alpha = hasBackground ? 1 : 0;
@@ -69,23 +70,28 @@ Hooks.once('init', function () {
         let visibleToToken = true;
         let tokens = [];
         const user = game.user;
-          if (user.isGM) {
-            const token = canvas.tokens.controlled[0] ?? user.character?.getActiveTokens()?.[0];
-            if (token) tokens = [token];
-          } else {
-            tokens = canvas.tokens.placeables.filter((t) => t.actor?.isOwner);
-          }
+        if (user.isGM) {
+          const token =
+            canvas.tokens.controlled[0] ??
+            user.character?.getActiveTokens()?.[0];
+          if (token) tokens = [token];
+        } else {
+          tokens = canvas.tokens.placeables.filter((t) => t.actor?.isOwner);
+        }
         if (useTokenVision) {
           const point = { x: this.x, y: this.y };
           visibleToToken = tokens.some((token) =>
             canvas.visibility.testVisibility(point, {
               object: token,
               tolerance: 2,
-            })
+            }),
           );
         }
 
-        const showNotConnectedPin = game.settings.get(MODULE_ID, 'showNotConectedPin');
+        const showNotConnectedPin = game.settings.get(
+          MODULE_ID,
+          "showNotConectedPin",
+        );
         if (this.entry === undefined) {
           const userId = game.user.id;
           const users = this.document?.flags?.[MODULE_ID]?.users;
@@ -104,33 +110,31 @@ Hooks.once('init', function () {
         if (game.user.isGM && tokens.length === 0) {
           finalVisibility = true;
         }
-    const distance = this.document.getFlag(MODULE_ID, "distance");
+        const distance = this.document.getFlag(MODULE_ID, "distance");
 
-if (distance !== 0 && tokens.length > 0) {
-  const notePosition = {
-    x: this.document.x,
-    y: this.document.y,
-  };
+        if (distance !== 0 && tokens.length > 0 && useTokenVision) {
+          const notePosition = {
+            x: this.document.x,
+            y: this.document.y,
+          };
 
-  const tokenIsClose = tokens.some((token) => {
-    const tokenPosition = {
-      x: token.center.x,
-      y: token.center.y,
-    };
+          const tokenIsClose = tokens.some((token) => {
+            const tokenPosition = {
+              x: token.center.x,
+              y: token.center.y,
+            };
 
-    const dx = tokenPosition.x - notePosition.x;
-    const dy = tokenPosition.y - notePosition.y;
-    const gridSize = canvas.grid.size
-    const gridUnit = canvas.grid.distance
-    const tokenDistance = Math.hypot(dx, dy)/(gridSize/gridUnit);
+            const dx = tokenPosition.x - notePosition.x;
+            const dy = tokenPosition.y - notePosition.y;
+            const gridSize = canvas.grid.size;
+            const gridUnit = canvas.grid.distance;
+            const tokenDistance = Math.hypot(dx, dy) / (gridSize / gridUnit);
 
-    return tokenDistance <= distance;
-  });
+            return tokenDistance <= distance;
+          });
 
-  
-    finalVisibility = tokenIsClose;
-  
-}
+          finalVisibility = tokenIsClose;
+        }
         return finalVisibility;
       } else {
         return baseVisible;
@@ -146,85 +150,274 @@ if (distance !== 0 && tokens.length > 0) {
     };
     const icon = new foundry.canvas.containers.ControlIcon(iconData);
 
-    const hasBackground = !this.document.getFlag(MODULE_ID, 'hasBackground') ?? true;
-    
+    const hasBackground =
+      !this.document.getFlag(MODULE_ID, "hasBackground") ?? true;
+
     icon.bg.alpha = hasBackground ? 0.4 : 0;
     icon.border.alpha = hasBackground ? 1 : 0;
     const isGM = game.user.isGM;
-    const hideIcon = this.document.getFlag(MODULE_ID, 'hideIcon') ?? false;
+    const hideIcon = this.document.getFlag(MODULE_ID, "hideIcon") ?? false;
 
-    if(isGM && hideIcon){
+    if (isGM && hideIcon) {
       icon.alpha = 0.1;
-    }else if(hideIcon){
-      icon.alpha = 0
-    }else{
-      icon.alpha = 1
+    } else if (hideIcon) {
+      icon.alpha = 0;
+    } else {
+      icon.alpha = 1;
     }
     return icon;
   };
-const originalOnHoverIn =
-  foundry.canvas.placeables.PlaceableObject.prototype._onHoverIn;
-
-foundry.canvas.placeables.PlaceableObject.prototype._onHoverIn = function (
-  event,
-  { hoverOutOthers = false, updateLegend = true } = {}
-) {
-    originalOnHoverIn.call(this, event, {
-    hoverOutOthers,
-    updateLegend
-  });
- 
-  const isNote = this.objectId;
-
-  if (isNote?.includes('Note')) {
-    const apoFlags = this.document?.flags?.[MODULE_ID];
-
-    const hideOverlay = apoFlags?.hideOverlay ?? false;
+  foundry.canvas.placeables.Note.prototype._refreshTooltip = function () {
     const note = this;
-
-    if (apoFlags?.hideLabel) {
-      event.preventDefault();
-      note.children[1]._text = '';
-    } else {
-      const journalName = note?.entry?.name;
-      const pageName = note?.document?.page?.name;
-      const label = note.document.text;
-      const gmLabel = apoFlags?.gmLabel;
-
-      if (label === '') {
-        if (pageName) {
-          note.children[1]._text = pageName;
-        } else {
-          note.children[1]._text = journalName;
-        }
-      } else {
-        note.children[1]._text = label;
-      }
-
-      if (game.user.isGM && gmLabel !== '' && gmLabel) {
-        note.children[1]._text = gmLabel;
-      }
+    const apoFlags = note?.document?.flags?.[MODULE_ID];
+    const gmlabel = apoFlags?.gmLabel;
+    let label = this.document.label;
+    if (game.user.isGM && gmlabel !== "" && gmlabel) {
+      label = gmlabel;
     }
-  }
-};
+    this.tooltip.text = label;
+    this.tooltip.style = this._getTextStyle();
+    const halfPad = 0.5 * this.document.iconSize + 12;
+    switch (this.document.textAnchor) {
+      case CONST.TEXT_ANCHOR_POINTS.CENTER:
+        this.tooltip.anchor.set(0.5, 0.5);
+        this.tooltip.position.set(0, 0);
+        break;
+      case CONST.TEXT_ANCHOR_POINTS.BOTTOM:
+        this.tooltip.anchor.set(0.5, 0);
+        this.tooltip.position.set(0, halfPad);
+        break;
+      case CONST.TEXT_ANCHOR_POINTS.TOP:
+        this.tooltip.anchor.set(0.5, 1);
+        this.tooltip.position.set(0, -halfPad);
+        break;
+      case CONST.TEXT_ANCHOR_POINTS.LEFT:
+        this.tooltip.anchor.set(1, 0.5);
+        this.tooltip.position.set(-halfPad, 0);
+        break;
+      case CONST.TEXT_ANCHOR_POINTS.RIGHT:
+        this.tooltip.anchor.set(0, 0.5);
+        this.tooltip.position.set(halfPad, 0);
+        break;
+    }
+  };
+  const originalOnHoverIn =
+    foundry.canvas.placeables.PlaceableObject.prototype._onHoverIn;
+
+  foundry.canvas.placeables.PlaceableObject.prototype._onHoverIn =
+    async function (
+      event,
+      { hoverOutOthers = false, updateLegend = true } = {},
+    ) {
+      originalOnHoverIn.call(this, event, {
+        hoverOutOthers,
+        updateLegend,
+      });
+
+      const isNote = this.objectId;
+
+      if (isNote?.includes("Note")) {
+        const apoFlags = this.document?.flags?.[MODULE_ID];
+
+        const hideOverlay = apoFlags?.hideOverlay ?? false;
+        const note = this;
+
+        if (apoFlags?.hideLabel) {
+          event.preventDefault();
+          note.children[1]._text = "";
+        } else {
+          const journalName = note?.entry?.name;
+          const pageName = note?.document?.page?.name;
+          const label = note.document.text;
+          const gmLabel = apoFlags?.gmLabel;
+
+          if (label === "") {
+            if (pageName) {
+              note.children[1]._text = pageName;
+            } else {
+              note.children[1]._text = journalName;
+            }
+          } else {
+            note.children[1]._text = label;
+          }
+
+          if (game.user.isGM && gmLabel !== "" && gmLabel) {
+            note.children[1]._text = gmLabel;
+          }
+        }
+        if (!hideOverlay || game.user.isGM) {
+          const hoverTime = Number(apoFlags?.hoverTime) ?? 100;
+          if (hoverElement) {
+            clearTimeout(hoverRemoveTimeout);
+
+            hoverRemoveTimeout = setTimeout(() => {
+              if (hoverElement && !hoverElement.matches(":hover")) {
+                hoverElement.remove();
+                hoverElement = null;
+              }
+            }, hoverTime);
+          }
+          if (apoFlags?.hideOverlay === true && !game.user.isGM) {
+            return;
+          }
+
+          const template =
+            "modules/advance-map-pin/templates/hover-element.hbs";
+
+          const templateData = {
+            text: apoFlags?.text ?? "",
+            img: apoFlags?.img ?? "",
+          };
+          if (templateData.text !== "" || templateData.img !== "") {
+            const content =
+              await foundry.applications.handlebars.renderTemplate(
+                template,
+                templateData,
+              );
+
+            if (hoverElement) {
+              hoverElement.remove();
+              hoverElement = null;
+            }
+
+            clearTimeout(hoverRemoveTimeout);
+
+            hoverElement = document.createElement("div");
+            hoverElement.classList.add("apo-hover");
+            hoverElement.innerHTML = content;
+
+            hoverElement.addEventListener("mouseenter", () => {
+              clearTimeout(hoverRemoveTimeout);
+            });
+
+            hoverElement.addEventListener("mouseleave", () => {
+              hoverRemoveTimeout = setTimeout(() => {
+                if (hoverElement) {
+                  hoverElement.remove();
+                  hoverElement = null;
+                }
+              }, hoverTime);
+            });
+
+            const offsetX = apoFlags?.pixelOffsetX ?? 50;
+            const offsetY = apoFlags?.pixelOffsetY ?? 50;
+            const direction = apoFlags?.direction ?? "right";
+
+            const dirMap = {
+              top: [0, -1],
+              "top-right": [1, -1],
+              right: [1, 0],
+              "bottom-right": [1, 1],
+              bottom: [0, 1],
+              "bottom-left": [-1, 1],
+              left: [-1, 0],
+              "top-left": [-1, -1],
+            };
+
+            const [dx, dy] = dirMap[direction] ?? [1, 0];
+
+            const screenX = note.x + dx * offsetX;
+            const screenY = note.y + dy * offsetY;
+
+            let backgroundColor = apoFlags?.backgroundColor;
+
+            const uiConfig = game.settings.get("core", "uiConfig");
+            const theme = uiConfig.colorScheme.interface;
+
+            let textColor;
+
+            if (backgroundColor === "white" || backgroundColor === "black") {
+              switch (theme) {
+                case "light":
+                  backgroundColor = "white";
+                  textColor = "black";
+                  break;
+
+                case "dark":
+                  backgroundColor = "black";
+                  textColor = "white";
+                  break;
+              }
+            }
+
+            hoverElement.style.position = "absolute";
+            hoverElement.style.left = `${screenX}px`;
+            hoverElement.style.top = `${screenY}px`;
+            hoverElement.style.pointerEvents = "auto";
+
+            hoverElement.style.background = backgroundColor;
+            hoverElement.style.color = textColor;
+            const maxWidthSetting = game.settings.get(
+              MODULE_ID,
+              "useWidthCustomOverlay",
+            );
+            if (maxWidthSetting) {
+              const maxWidthValue = game.settings.get(
+                MODULE_ID,
+                "maxWidthCustomOverlay",
+              );
+              hoverElement.style.maxWidth = `${maxWidthValue}px`;
+              hoverElement.style.boxSizing = "border-box";
+              hoverElement.style.overflow = "hidden";
+
+              hoverElement.querySelectorAll("*").forEach((el) => {
+                el.style.maxWidth = "100%";
+                el.style.boxSizing = "border-box";
+              });
+
+              hoverElement.querySelectorAll("img").forEach((img) => {
+                img.style.maxWidth = "100%";
+                img.style.height = "auto";
+                img.style.display = "block";
+              });
+
+              hoverElement.style.wordBreak = "break-word";
+              hoverElement.style.overflowWrap = "anywhere";
+
+              hoverElement.querySelectorAll("table").forEach((table) => {
+                table.style.width = "100%";
+                table.style.display = "block";
+                table.style.overflowX = "auto";
+              });
+            }
+            document.getElementById("hud").appendChild(hoverElement);
+
+            const hasBackground =
+              note.document.getFlag(MODULE_ID, "hasBackground") ?? false;
+
+            if (hasBackground) {
+              note.controlIcon.border.alpha = 0;
+              note.controlIcon.bg.alpha = 0;
+            } else {
+              note.controlIcon.border.alpha = 1;
+              note.controlIcon.bg.alpha = 0.4;
+            }
+          }
+        }
+      }
+    };
 });
-Hooks.on('renderSettingsConfig', (app, html) => {
-  const checkbox = html.querySelector(`[name="${MODULE_ID}.useWidthCustomOverlay"]`);
-  const rangeInput = html.querySelector(`[name="${MODULE_ID}.maxWidthCustomOverlay"]`);
+Hooks.on("renderSettingsConfig", (app, html) => {
+  const checkbox = html.querySelector(
+    `[name="${MODULE_ID}.useWidthCustomOverlay"]`,
+  );
+  const rangeInput = html.querySelector(
+    `[name="${MODULE_ID}.maxWidthCustomOverlay"]`,
+  );
   if (!checkbox || !rangeInput) return;
-  const rangeGroup = rangeInput.closest('.form-group');
+  const rangeGroup = rangeInput.closest(".form-group");
   function updateVisibility() {
     if (checkbox.checked) {
-      rangeGroup.style.display = '';
+      rangeGroup.style.display = "";
     } else {
-      rangeGroup.style.display = 'none';
+      rangeGroup.style.display = "none";
     }
   }
   updateVisibility();
-  checkbox.addEventListener('change', updateVisibility);
+  checkbox.addEventListener("change", updateVisibility);
 });
-Hooks.on('drawNote', (note) => {
-  const showAll = game.settings.get(MODULE_ID, 'allPinVisible');
+Hooks.on("drawNote", (note) => {
+  const showAll = game.settings.get(MODULE_ID, "allPinVisible");
   const apoFlags = note?.document?.flags?.[MODULE_ID];
 
   const hideLabel = apoFlags?.hideLabel;
@@ -232,29 +425,12 @@ Hooks.on('drawNote', (note) => {
 
   if (showAll || alwaysShow) {
     if (!hideLabel) {
-      const journalName = note?.entry?.name;
-      const pageName = note?.document?.page?.name;
-      const label = note.document.text;
-      const gmlabel = apoFlags?.gmLabel;
-
-      if (label === '') {
-        if (pageName) {
-          note.children[1]._text = pageName;
-        } else {
-          note.children[1]._text = journalName;
-        }
-      } else {
-        note.children[1]._text = label;
-      }
-
-      if (game.user.isGM && gmlabel !== '' && gmlabel) {
-        note.children[1]._text = gmlabel;
-      }
-
       note.hover = true;
     }
   }
-  const text = note.children.find((c) => c instanceof foundry.canvas.containers.PreciseText);
+  const text = note.children.find(
+    (c) => c instanceof foundry.canvas.containers.PreciseText,
+  );
   const scaleZoom = apoFlags?.scaleZoom ?? false;
   const minFont = apoFlags?.minFont;
   const maxFont = apoFlags?.maxFont;
@@ -262,9 +438,11 @@ Hooks.on('drawNote', (note) => {
     updateNoteTextScale(text, minFont, maxFont);
   }
 });
-Hooks.on('canvasPan', () => {
+Hooks.on("canvasPan", () => {
   for (const note of canvas.notes.placeables) {
-    const text = note.children.find((c) => c instanceof foundry.canvas.containers.PreciseText);
+    const text = note.children.find(
+      (c) => c instanceof foundry.canvas.containers.PreciseText,
+    );
     const apoFlags = note.document.flags?.[MODULE_ID];
     const scaleZoom = apoFlags?.scaleZoom ?? false;
     const minFont = apoFlags?.minFont;
@@ -276,27 +454,24 @@ Hooks.on('canvasPan', () => {
 });
 let hoverRemoveTimeout = null;
 
-Hooks.on('hoverNote', async (note, hoverIn) => {
-  const showAll = game.settings.get(MODULE_ID, 'allPinVisible');
+Hooks.on("hoverNote", async (note, hoverIn) => {
+  const showAll = game.settings.get(MODULE_ID, "allPinVisible");
   const apoFlags = note.document.flags?.[MODULE_ID];
-  const hoverTime = Number(apoFlags?.hoverTime) ?? 100;
   if (hoverIn === false) {
     if (showAll || apoFlags?.alwaysShow) {
       event.preventDefault();
       note.hover = true;
     }
-
-    if (hoverElement) {
-      clearTimeout(hoverRemoveTimeout);
-
+    let overlay = document.querySelector(".apo-hover");
+    if (overlay) {
+      const hoverTime = Number(apoFlags?.hoverTime) ?? 100;
       hoverRemoveTimeout = setTimeout(() => {
-        if (hoverElement && !hoverElement.matches(':hover')) {
-          hoverElement.remove();
-          hoverElement = null;
+        if (overlay) {
+          overlay.remove();
+          overlay = null;
         }
       }, hoverTime);
     }
-
     return;
   }
 
@@ -304,159 +479,16 @@ Hooks.on('hoverNote', async (note, hoverIn) => {
 
   if (apoFlags.hideLabel) {
     event.preventDefault();
-    note.children[1]._text = '';
-  } else {
-    const journalName = note?.entry?.name;
-    const pageName = note?.document?.page?.name;
-    const label = note.document.text;
-    const gmlabel = apoFlags?.gmLabel;
-
-    if (label === '') {
-      if (pageName) {
-        note.children[1]._text = pageName;
-      } else {
-        note.children[1]._text = journalName;
-      }
-    } else {
-      note.children[1]._text = label;
-    }
-
-    if (game.user.isGM && gmlabel !== '' && gmlabel) {
-      note.children[1]._text = gmlabel;
-    }
-  }
-
-  if (apoFlags?.hideOverlay === true && !game.user.isGM) {
-    return;
-  }
-
-  const template = 'modules/advance-map-pin/templates/hover-element.hbs';
-
-  const templateData = {
-    text: apoFlags.text ?? '',
-    img: apoFlags.img ?? '',
-  };
-
-  const content = await foundry.applications.handlebars.renderTemplate(template, templateData);
-
-  if (hoverElement) {
-    hoverElement.remove();
-    hoverElement = null;
-  }
-
-  clearTimeout(hoverRemoveTimeout);
-
-  hoverElement = document.createElement('div');
-  hoverElement.classList.add('apo-hover');
-  hoverElement.innerHTML = content;
-
-  hoverElement.addEventListener('mouseenter', () => {
-    clearTimeout(hoverRemoveTimeout);
-  });
-
-  hoverElement.addEventListener('mouseleave', () => {
-    hoverRemoveTimeout = setTimeout(() => {
-      if (hoverElement) {
-        hoverElement.remove();
-        hoverElement = null;
-      }
-    }, hoverTime);
-  });
-
-  const offsetX = apoFlags?.pixelOffsetX ?? 50;
-  const offsetY = apoFlags?.pixelOffsetY ?? 50;
-  const direction = apoFlags?.direction ?? 'right';
-
-  const dirMap = {
-    top: [0, -1],
-    'top-right': [1, -1],
-    right: [1, 0],
-    'bottom-right': [1, 1],
-    bottom: [0, 1],
-    'bottom-left': [-1, 1],
-    left: [-1, 0],
-    'top-left': [-1, -1],
-  };
-
-  const [dx, dy] = dirMap[direction] ?? [1, 0];
-
-  const screenX = note.x + dx * offsetX;
-  const screenY = note.y + dy * offsetY;
-
-  let backgroundColor = apoFlags?.backgroundColor;
-
-  const uiConfig = game.settings.get('core', 'uiConfig');
-  const theme = uiConfig.colorScheme.interface;
-
-  let textColor;
-
-  if (backgroundColor === "white" ||  backgroundColor=== "black") {
-    switch (theme) {
-      case 'light':
-        backgroundColor = 'white';
-        textColor = 'black';
-        break;
-
-      case 'dark':
-        backgroundColor = 'black';
-        textColor = 'white';
-        break;
-    }
-  }
-
-  hoverElement.style.position = 'absolute';
-  hoverElement.style.left = `${screenX}px`;
-  hoverElement.style.top = `${screenY}px`;
-  hoverElement.style.pointerEvents = 'auto';
-
-  hoverElement.style.background = backgroundColor;
-  hoverElement.style.color = textColor;
-  const maxWidthSetting = game.settings.get(MODULE_ID, 'useWidthCustomOverlay');
-  if (maxWidthSetting) {
-    const maxWidthValue = game.settings.get(MODULE_ID, 'maxWidthCustomOverlay');
-    hoverElement.style.maxWidth = `${maxWidthValue}px`;
-    hoverElement.style.boxSizing = 'border-box';
-    hoverElement.style.overflow = 'hidden';
-
-    hoverElement.querySelectorAll('*').forEach((el) => {
-      el.style.maxWidth = '100%';
-      el.style.boxSizing = 'border-box';
-    });
-
-    hoverElement.querySelectorAll('img').forEach((img) => {
-      img.style.maxWidth = '100%';
-      img.style.height = 'auto';
-      img.style.display = 'block';
-    });
-
-    hoverElement.style.wordBreak = 'break-word';
-    hoverElement.style.overflowWrap = 'anywhere';
-
-    hoverElement.querySelectorAll('table').forEach((table) => {
-      table.style.width = '100%';
-      table.style.display = 'block';
-      table.style.overflowX = 'auto';
-    });
-  }
-  document.getElementById('hud').appendChild(hoverElement);
-
-  const hasBackground = note.document.getFlag(MODULE_ID, 'hasBackground') ?? false;
-
-  if (hasBackground) {
-    note.controlIcon.border.alpha = 0;
-    note.controlIcon.bg.alpha = 0;
-  } else {
-    note.controlIcon.border.alpha = 1;
-    note.controlIcon.bg.alpha = 0.4;
+    note.children[1]._text = "";
   }
 });
 
-Hooks.on('renderNoteConfig', async (app, html, data) => {
-  if (app.id !== 'note-palette') {
-    const template = 'modules/advance-map-pin/templates/advance-pin-option.hbs';
+Hooks.on("renderNoteConfig", async (app, html, data) => {
+  if (app.id !== "note-palette") {
+    const template = "modules/advance-map-pin/templates/advance-pin-option.hbs";
     const note = app.document;
     const element = app.element;
-    element.classList.add('custom-width');
+    element.classList.add("custom-width");
     if (note.id === null) {
       const saveBtn = html.querySelector("button[type='submit']");
       saveBtn?.click();
@@ -466,37 +498,40 @@ Hooks.on('renderNoteConfig', async (app, html, data) => {
     }
 
     const apoFlags = note.flags?.[MODULE_ID] ?? {};
-    const rawText = apoFlags.text ?? '';
+    const rawText = apoFlags.text ?? "";
 
     const enrichedText = await enrich(rawText);
 
     const pinAuthorId = note.document?.author ?? note.author;
 
     const users = game.users
-      .filter((user) => !user.isGM && user.id !== game.user.id && user.id !== pinAuthorId)
+      .filter(
+        (user) =>
+          !user.isGM && user.id !== game.user.id && user.id !== pinAuthorId,
+      )
       .map((user) => ({
         id: user.id,
         name: user.name,
       }));
-    const allUsers = game.i18n.localize('apo.allUsers');
-    const finalUsers = [{ id: 'all', name: allUsers }, ...users];
+    const allUsers = game.i18n.localize("apo.allUsers");
+    const finalUsers = [{ id: "all", name: allUsers }, ...users];
     const noOtherUsers = users.length !== 0;
     const savedUsers = apoFlags.users ?? {};
-    const uiConfig = game.settings.get('core', 'uiConfig');
+    const uiConfig = game.settings.get("core", "uiConfig");
     const theme = uiConfig.colorScheme.interface;
     let backgroundColor = apoFlags?.backgroundColor;
     if (!backgroundColor) {
       switch (theme) {
-        case 'light':
-          backgroundColor = 'white';
+        case "light":
+          backgroundColor = "white";
           break;
-        case 'dark':
-          backgroundColor = 'black';
+        case "dark":
+          backgroundColor = "black";
           break;
       }
     }
     let defaultLabel = false;
-    const showToAll = game.settings.get(MODULE_ID, 'showNotConectedPin');
+    const showToAll = game.settings.get(MODULE_ID, "showNotConectedPin");
     if (!apoFlags?.alwaysShow && !apoFlags?.hideLabel && !showToAll) {
       defaultLabel = true;
     }
@@ -509,14 +544,14 @@ Hooks.on('renderNoteConfig', async (app, html, data) => {
         field: new HTMLField({
           required: false,
           nullable: true,
-          label: 'apo.customText',
+          label: "apo.customText",
         }),
       },
-      img: apoFlags.img ?? '',
+      img: apoFlags.img ?? "",
       hideLabel: apoFlags.hideLabel ?? false,
       alwaysShow: apoFlags.alwaysShow ?? false,
       hasBackground: apoFlags.hasBackground ?? false,
-      direction: apoFlags.direction ?? 'top',
+      direction: apoFlags.direction ?? "top",
       pixelOffsetX: apoFlags.pixelOffsetX ?? 50,
       pixelOffsetY: apoFlags.pixelOffsetY ?? 50,
       backgroundColor: backgroundColor,
@@ -527,7 +562,7 @@ Hooks.on('renderNoteConfig', async (app, html, data) => {
       hideOverlay: apoFlags?.hideOverlay ?? false,
       default: defaultLabel,
       isGM: game.user.isGM,
-      gmLabel: apoFlags?.gmLabel ?? '',
+      gmLabel: apoFlags?.gmLabel ?? "",
       hoverTime: apoFlags?.hoverTime ?? 100,
       scaleZomm: apoFlags?.scaleZoom ?? false,
       minFont: apoFlags?.minFont ?? 10,
@@ -535,26 +570,29 @@ Hooks.on('renderNoteConfig', async (app, html, data) => {
       gridUnit: gridUnit,
       distance: apoFlags?.distance ?? 0,
       isGridless: isGridless,
-      hideIcon: apoFlags?.hideIcon
+      hideIcon: apoFlags?.hideIcon,
     };
 
-    const content = await foundry.applications.handlebars.renderTemplate(template, templateData);
-    const mainbody = html.querySelector('.form-body.standard-form.scrollable');
-    const fieldsets = mainbody.querySelectorAll('fieldset');
+    const content = await foundry.applications.handlebars.renderTemplate(
+      template,
+      templateData,
+    );
+    const mainbody = html.querySelector(".form-body.standard-form.scrollable");
+    const fieldsets = mainbody.querySelectorAll("fieldset");
 
     if (!fieldsets.length) return;
 
     const lastFieldset = fieldsets[fieldsets.length - 1];
 
-    lastFieldset.insertAdjacentHTML('afterend', content);
+    lastFieldset.insertAdjacentHTML("afterend", content);
 
-    html.querySelectorAll('.file-picker').forEach((button) => {
-      button.addEventListener('click', () => {
+    html.querySelectorAll(".file-picker").forEach((button) => {
+      button.addEventListener("click", () => {
         const target = button.dataset.target;
         const input = html.querySelector(`[name="${target}"]`);
         new FilePicker({
           type: button.dataset.type,
-          current: input?.value || '',
+          current: input?.value || "",
           callback: (path) => {
             if (input) input.value = path;
           },
@@ -564,29 +602,29 @@ Hooks.on('renderNoteConfig', async (app, html, data) => {
 
     const saveButton = html.querySelector(".form-footer button[type='submit']");
 
-    saveButton.addEventListener('click', async () => {
+    saveButton.addEventListener("click", async () => {
       if (note.id !== null) {
-        const apo = html.querySelector('.apo');
-        const textField = apo.querySelector('.editor-content');
-        const textValue = textField?.innerHTML ?? '';
+        const apo = html.querySelector(".apo");
+        const textField = apo.querySelector(".editor-content");
+        const textValue = textField?.innerHTML ?? "";
         await saveFlags(apo, textValue, note);
       }
     });
 
-    html.addEventListener('save', async (event) => {
+    html.addEventListener("save", async (event) => {
       if (note.id !== null) {
-        const apo = html.querySelector('.apo');
+        const apo = html.querySelector(".apo");
         const textValue = event.target.value;
         await saveFlags(apo, textValue, note);
       }
     });
 
-    const apo = html.querySelector('.apo');
+    const apo = html.querySelector(".apo");
 
-    const userInput = apo.querySelectorAll('.apo-user-checkbox');
+    const userInput = apo.querySelectorAll(".apo-user-checkbox");
     const selectAll = apo.querySelector('[data-id="all"]');
     if (selectAll) {
-      selectAll.addEventListener('change', () => {
+      selectAll.addEventListener("change", () => {
         const isChecked = selectAll.checked;
 
         userInput.forEach((input) => {
@@ -595,10 +633,10 @@ Hooks.on('renderNoteConfig', async (app, html, data) => {
       });
     }
 
-    const scaleZoom = apo.querySelector('input[name=scaleZoom]');
+    const scaleZoom = apo.querySelector("input[name=scaleZoom]");
     if (scaleZoom) {
-      scaleZoom.addEventListener('change', () => {
-        const zoomFont = apo.querySelector('.zoomFont');
+      scaleZoom.addEventListener("change", () => {
+        const zoomFont = apo.querySelector(".zoomFont");
         if (!zoomFont) return;
         const isChecked = scaleZoom.checked;
         zoomFont.hidden = !isChecked;
@@ -609,10 +647,13 @@ Hooks.on('renderNoteConfig', async (app, html, data) => {
 
 async function enrich(html) {
   if (!html) return html;
-  return await foundry.applications.ux.TextEditor.implementation.enrichHTML(html, {
-    secrets: game.user.isOwner,
-    async: true,
-  });
+  return await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+    html,
+    {
+      secrets: game.user.isOwner,
+      async: true,
+    },
+  );
 }
 
 function registerHandlebarsHelpers() {
@@ -631,40 +672,42 @@ function registerHandlebarsHelpers() {
       return Array.prototype.slice.call(arguments, 0, -1).some(Boolean);
     },
   });
-  Handlebars.registerHelper('log', function (element) {
+  Handlebars.registerHelper("log", function (element) {
     console.log(element);
   });
-  Handlebars.registerHelper('selectedDirection', (a, b) => (a === b ? 'selected' : ''));
+  Handlebars.registerHelper("selectedDirection", (a, b) =>
+    a === b ? "selected" : "",
+  );
 }
 async function saveFlags(apo, textValue, note) {
-  const hideOverlay = apo.querySelector('input[name=hideOverlay]');
+  const hideOverlay = apo.querySelector("input[name=hideOverlay]");
   const imgField = apo.querySelector("input[name='flags.advance-map-pin.img']");
-  const label = apo.querySelector('select[data-type=label]');
-  const hasBackgroundInput = apo.querySelector('input[name=hasBackground]');
+  const label = apo.querySelector("select[data-type=label]");
+  const hasBackgroundInput = apo.querySelector("input[name=hasBackground]");
 
-  const directionInput = apo.querySelector('select[name=direction]');
-  const pixelOffsetXInput = apo.querySelector('input[name=pixelOffsetX]');
-  const pixelOffsetYInput = apo.querySelector('input[name=pixelOffsetY]');
-  const hoverTimeInput = apo.querySelector('input[name=hoverTime]');
-  const backgroundColorInput = apo.querySelector('[name=backgroundColor]');
-  const scalzeZoom = apo.querySelector('input[name=scaleZoom]');
-  const zoomFont = apo.querySelector('.zoomFont');
-  const minFontSizeInput = zoomFont.querySelector('input[name=minZoomFont]');
-  const maxFontsizeInput = zoomFont.querySelector('input[name=maxZoomFont]');
-  const distanceInput = apo.querySelector('input[name=distance]');
-  const imgValue = imgField?.value ?? '';
-  const hideIconInput = apo.querySelector('input[name=hideIcon]')
-  const hideLabelValue = label.value === 'hideLabel';
+  const directionInput = apo.querySelector("select[name=direction]");
+  const pixelOffsetXInput = apo.querySelector("input[name=pixelOffsetX]");
+  const pixelOffsetYInput = apo.querySelector("input[name=pixelOffsetY]");
+  const hoverTimeInput = apo.querySelector("input[name=hoverTime]");
+  const backgroundColorInput = apo.querySelector("[name=backgroundColor]");
+  const scalzeZoom = apo.querySelector("input[name=scaleZoom]");
+  const zoomFont = apo.querySelector(".zoomFont");
+  const minFontSizeInput = zoomFont.querySelector("input[name=minZoomFont]");
+  const maxFontsizeInput = zoomFont.querySelector("input[name=maxZoomFont]");
+  const distanceInput = apo.querySelector("input[name=distance]");
+  const imgValue = imgField?.value ?? "";
+  const hideIconInput = apo.querySelector("input[name=hideIcon]");
+  const hideLabelValue = label.value === "hideLabel";
   const hideOverlayValue = hideOverlay?.checked ?? false;
-  const alwaysShowValue = label.value === 'alwaysShow';
+  const alwaysShowValue = label.value === "alwaysShow";
   const hasBackground = hasBackgroundInput?.checked ?? false;
-  const defaultLabel = label.value === 'default';
-  const direction = directionInput?.value ?? 'top';
+  const defaultLabel = label.value === "default";
+  const direction = directionInput?.value ?? "top";
   const pixelOffsetX = Number(pixelOffsetXInput?.value ?? 0);
   const pixelOffsetY = Number(pixelOffsetYInput?.value ?? 0);
-  const backgroundColor = backgroundColorInput?.value ?? '#ffffff';
+  const backgroundColor = backgroundColorInput?.value ?? "#ffffff";
   const hoverTime = hoverTimeInput.value;
-  const userCheckboxes = apo.querySelectorAll('.apo-user-checkbox');
+  const userCheckboxes = apo.querySelectorAll(".apo-user-checkbox");
   const maxFont = Number(maxFontsizeInput?.value) ?? 250;
   const minFont = Number(minFontSizeInput?.value) ?? 10;
   const usersState = {};
@@ -675,11 +718,11 @@ async function saveFlags(apo, textValue, note) {
   userCheckboxes.forEach((input) => {
     const userId = input.dataset.id;
 
-    if (userId === 'all') {
+    if (userId === "all") {
       allSelected = input.checked;
     } else {
       usersState[userId] = input.checked;
-      usersState['all'] = false;
+      usersState["all"] = false;
     }
   });
   if (allSelected) {
@@ -688,58 +731,63 @@ async function saveFlags(apo, textValue, note) {
       .forEach((user) => {
         usersState[user.id] = true;
       });
-    usersState['all'] = true;
+    usersState["all"] = true;
   }
+  const updateData = {
+    text: textValue,
+    img: imgValue,
+    hideLabel: hideLabelValue,
+    alwaysShow: alwaysShowValue,
+    hasBackground,
+    direction,
+    pixelOffsetX,
+    pixelOffsetY,
+    backgroundColor,
+    users: usersState,
+    hideOverlay: hideOverlayValue,
+    defaultLabel,
+    hoverTime,
+    scaleZoom: scalzeZoom.checked,
+    minFont,
+    maxFont,
+    distance,
+    hideIcon,
+  };
 
-  await note.setFlag(MODULE_ID, 'text', textValue);
-  await note.setFlag(MODULE_ID, 'img', imgValue);
-  await note.setFlag(MODULE_ID, 'hideLabel', hideLabelValue);
-  await note.setFlag(MODULE_ID, 'alwaysShow', alwaysShowValue);
-  await note.setFlag(MODULE_ID, 'hasBackground', hasBackground);
-  await note.setFlag(MODULE_ID, 'direction', direction);
-  await note.setFlag(MODULE_ID, 'pixelOffsetX', pixelOffsetX);
-  await note.setFlag(MODULE_ID, 'pixelOffsetY', pixelOffsetY);
-  await note.setFlag(MODULE_ID, 'backgroundColor', backgroundColor);
-  await note.setFlag(MODULE_ID, 'users', usersState);
-  await note.setFlag(MODULE_ID, 'hideOverlay', hideOverlayValue);
-  await note.setFlag(MODULE_ID, 'defaultLabel', defaultLabel);
-  await note.setFlag(MODULE_ID, 'hoverTime', hoverTime);
-  await note.setFlag(MODULE_ID, 'scaleZoom', scalzeZoom.checked);
-  await note.setFlag(MODULE_ID, 'minFont', minFont);
-  await note.setFlag(MODULE_ID, 'maxFont', maxFont);
-  await note.setFlag(MODULE_ID, "distance", distance);
-  await note.setFlag(MODULE_ID, "hideIcon", hideIcon)
+  await note.update({
+    [`flags.${MODULE_ID}`]: updateData,
+  });
 
   if (game.user.isGM) {
-    const gmLabel = apo.querySelector('input[name=gmLabel]');
+    const gmLabel = apo.querySelector("input[name=gmLabel]");
     const gmLabelText = gmLabel?.value;
-    await note.setFlag(MODULE_ID, 'gmLabel', gmLabelText);
+    await note.setFlag(MODULE_ID, "gmLabel", gmLabelText);
   }
   note._object.hover = alwaysShowValue;
 
   const module = game.modules.get(MODULE_ID);
   module.socketHandler.emit({
-    type: 'refresNote',
+    type: "refresNote",
     note: note._id,
   });
   const currentNote = canvas.notes.get(note._id);
   currentNote.renderFlags.set({ redraw: true });
   currentNote?._refreshVisibility();
-  Hooks.callAll('drawNote', currentNote);
+  Hooks.callAll("drawNote", currentNote);
 }
 export class SocketHandler {
   constructor() {
-    this.identifier = 'module.' + MODULE_ID;
+    this.identifier = "module." + MODULE_ID;
     this.registerSocketEvents();
   }
   registerSocketEvents() {
-    game.socket.on('module.' + MODULE_ID, async (data) => {
+    game.socket.on("module." + MODULE_ID, async (data) => {
       switch (data.type) {
-        case 'refresNote': {
+        case "refresNote": {
           const note = canvas.notes.get(data.note);
           note._refreshVisibility();
           note.renderFlags.set({ redraw: true });
-          Hooks.callAll('drawNote', note);
+          Hooks.callAll("drawNote", note);
         }
       }
     });
