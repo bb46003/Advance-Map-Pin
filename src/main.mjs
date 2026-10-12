@@ -110,7 +110,7 @@ Hooks.once("init", function () {
         if (game.user.isGM && tokens.length === 0) {
           finalVisibility = true;
         }
-        const distance = this.document.getFlag(MODULE_ID, "distance");
+        const distance = this.document.getFlag(MODULE_ID, "distance") ?? 0;
 
         if (distance !== 0 && tokens.length > 0 && useTokenVision) {
           const notePosition = {
@@ -133,7 +133,7 @@ Hooks.once("init", function () {
             return tokenDistance <= distance;
           });
 
-          finalVisibility = tokenIsClose;
+          finalVisibility = tokenIsClose && visibleToToken && baseVisible;
         }
         return finalVisibility;
       } else {
@@ -536,7 +536,7 @@ Hooks.on("renderNoteConfig", async (app, html, data) => {
       defaultLabel = true;
     }
     const gridUnit = game.canvas.grid.units;
-    const isGridless = !game.canvas.grid.isGridless;
+    const isGridless = game.canvas.visibility.tokenVision;
     const templateData = {
       text: {
         value: rawText,

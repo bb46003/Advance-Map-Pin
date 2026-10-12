@@ -9,7 +9,7 @@
       "allPinVisible": "Map Note Label always visible",
       "allPinVisibleHint": "Name of each Map Note will be always visible with out need for hovering.",
       "showNotConectedPin": "Always show Map Pin not connected to Journal",
-      "showNotConectedPinHint": "All Map Pins not connectet to Journal will be visible for all Users",
+      "showNotConectedPinHint": "All Map Pins not connectet to Journal will be visible for all Users, if you set in any Pin that it should be always visible, it will be change to hide this Pin.",
       "maxWidthCustomOverlay": "Restrict maximum width of Custom Overlay",
       "maxWidthCustomOverlayHint": "Will use defnie by user maximum width for all Custom Overlay at Map Pin",
       "maxWidthCustomOverlayValue": "Maximum width in pix for all Custom Overlay",
@@ -42,7 +42,7 @@
     "scaleWithZomm": "Scale Label Font with Canvas Zoom",
     "minZoomFont": "Minimum font size",
     "maxZoomFont": "Maximum font size",
-    "distanceToPin": "Distanse to Pin on witch it will be visible for token, in grid units of",
+    "distanceToPin": "Token Visibility Radius in grid units of",
     "hideIcon": "Hide Icon of Pin for Players, for GM Icon will be semi transparent"
   }
 }
